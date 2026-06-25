@@ -54,7 +54,62 @@ for (const donation of result.fundraising ?? []) {
 }
 
 const unique = Array.from(new Map(links.map((item) => [`${item.source}:${item.url}`, item])).values())
+
+// Browser-like headers — many sites (news outlets especially) reject UA-less
+// requests with 403/429.
+const BROWSER_HEADERS = {
+  'User-Agent':
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+  'Accept-Language': 'en-US,en;q=0.9',
+}
+
+// Statuses worth retrying — transient server/rate-limit responses.
+const TRANSIENT = new Set([408, 425, 429, 500, 502, 503, 504])
+// Statuses that mean a genuinely broken link (we control the reference) → fail.
+const HARD_FAIL = new Set([404, 410])
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+// Probe a URL: try HEAD then GET (some servers reject HEAD), retrying transient
+// failures with backoff. Returns {ok, status, error}.
+async function probe(url) {
+  let lastStatus = 0
+  let lastError = null
+
+  for (const method of ['HEAD', 'GET']) {
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        const res = await fetch(url, {
+          method,
+          redirect: 'follow',
+          headers: BROWSER_HEADERS,
+          signal: AbortSignal.timeout(20000),
+        })
+        lastStatus = res.status
+        lastError = null
+        if (res.ok || (res.status >= 300 && res.status < 400)) {
+          return {ok: true, status: res.status}
+        }
+        if (TRANSIENT.has(res.status) && attempt < 2) {
+          await sleep(1500 * attempt)
+          continue
+        }
+        break // non-transient (or out of retries) → fall through to GET / finish
+      } catch (err) {
+        lastError = err
+        if (attempt < 2) {
+          await sleep(1500 * attempt)
+        }
+      }
+    }
+  }
+
+  return {ok: false, status: lastStatus, error: lastError}
+}
+
 let failures = 0
+let warnings = 0
 
 console.log(`Checking ${unique.length} published links...`)
 
@@ -92,22 +147,38 @@ for (const item of unique) {
     continue
   }
 
-  try {
-    const check = await fetch(url, {method: 'HEAD', redirect: 'follow'})
-    if (check.ok || (check.status >= 300 && check.status < 400)) {
-      console.log(`OK ${check.status} ${item.source} -> ${url}`)
-    } else {
-      console.log(`FAIL ${check.status} ${item.source} -> ${url}`)
+  const {ok, status, error} = await probe(url)
+
+  if (ok) {
+    console.log(`OK ${status} ${item.source} -> ${url}`)
+  } else if (error) {
+    // A domain that does not resolve is a genuinely broken link; other network
+    // errors (timeouts, resets) are usually transient or anti-bot — warn only.
+    const code = error?.cause?.code ?? error?.code ?? ''
+    if (code === 'ENOTFOUND') {
+      console.log(`FAIL dns ${item.source} -> ${url}`)
       failures += 1
+    } else {
+      console.log(`WARN network (${code || error?.name || 'error'}) ${item.source} -> ${url}`)
+      warnings += 1
     }
-  } catch {
-    console.log(`FAIL network ${item.source} -> ${url}`)
+  } else if (HARD_FAIL.has(status)) {
+    console.log(`FAIL ${status} ${item.source} -> ${url}`)
     failures += 1
+  } else {
+    // 401/403/405/429/5xx etc. — the remote server blocked or errored on the
+    // automated request. Not something we can fix in our content; warn only.
+    console.log(`WARN ${status} (blocked/unavailable to bots) ${item.source} -> ${url}`)
+    warnings += 1
   }
 }
 
+if (warnings > 0) {
+  console.warn(`\n${warnings} link(s) could not be verified (external block / transient error) — not failing on these.`)
+}
+
 if (failures > 0) {
-  console.error(`Link check finished with ${failures} failure(s).`)
+  console.error(`Link check finished with ${failures} broken link(s).`)
   process.exit(1)
 }
 
