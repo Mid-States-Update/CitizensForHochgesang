@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+# Pre-push hook — mirrors the GitHub "Web Quality" CI job so lint/test/build
+# failures are caught locally before they reach CI/CD (or a Cloudflare deploy).
+#
+# Enabled via `git config core.hooksPath .githooks` (the root package.json
+# `prepare` script sets this automatically after `pnpm install`).
+#
+# Bypass for a single push when you really need to: `git push --no-verify`.
+
+set -e
+
+echo "[pre-push] Linting web…"
+pnpm -C web lint
+
+echo "[pre-push] Running web tests…"
+pnpm -C web test
+
+echo "[pre-push] Building web (with cache clear)…"
+pnpm build:web
+
+echo "[pre-push] ✓ All checks passed — pushing."

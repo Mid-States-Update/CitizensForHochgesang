@@ -3,6 +3,7 @@
   "private": true,
   "packageManager": "pnpm@10.29.3",
   "scripts": {
+    "prepare": "git config core.hooksPath .githooks",
     "dev:web": "pnpm -C web dev",
     "dev:studio": "pnpm -C studio dev",
     "build:web": "node -e \"require('fs').rmSync('web/.next/cache',{recursive:true,force:true})\" && pnpm -C web build",

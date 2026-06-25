@@ -1,0 +1,3 @@
+# Git hooks must use LF line endings or the #!/bin/sh shebang breaks when the
+# hook is executed (e.g. on macOS/Linux/CI and Git Bash on Windows).
+.githooks/** text eol=lf
