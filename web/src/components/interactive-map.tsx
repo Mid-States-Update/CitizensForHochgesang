@@ -205,12 +205,14 @@ export function InteractiveMap({
   const viewBoxRef = useRef(initialVB)
   const dragRef = useRef<{x: number; y: number; vb: number[]; moved: boolean} | null>(null)
   const justDraggedRef = useRef(false)
+  const hintTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   const [viewBox, setViewBox] = useState(initialVB)
   const [hoveredKey, setHoveredKey] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [activePopup, setActivePopup] = useState<PopupInfo | null>(null)
   const [popupPosition, setPopupPosition] = useState<{x: number; y: number} | null>(null)
+  const [showZoomHint, setShowZoomHint] = useState(false)
 
   const currentWidth = useMemo(() => viewBox.split(' ').map(Number)[2], [viewBox])
 
@@ -447,6 +449,16 @@ export function InteractiveMap({
     const el = svgRef.current
     if (!el || !enableZoom) return
     function onWheel(e: WheelEvent) {
+      // Only hijack the wheel for zoom when a zoom modifier is held. Trackpad
+      // pinch gestures arrive as wheel events with ctrlKey=true, so pinch zooms
+      // too; a plain two-finger scroll falls through to the page (and briefly
+      // shows a hint about how to zoom).
+      if (!e.ctrlKey && !e.metaKey) {
+        setShowZoomHint(true)
+        if (hintTimerRef.current) clearTimeout(hintTimerRef.current)
+        hintTimerRef.current = setTimeout(() => setShowZoomHint(false), 1300)
+        return
+      }
       e.preventDefault()
       const vb = viewBoxRef.current.split(' ').map(Number)
       const factor = e.deltaY > 0 ? 1.3 : 0.77
@@ -457,7 +469,10 @@ export function InteractiveMap({
       animateViewBox(clampViewBox([cx - nw / 2, cy - nh / 2, nw, nh]), 300)
     }
     el.addEventListener('wheel', onWheel, {passive: false})
-    return () => el.removeEventListener('wheel', onWheel)
+    return () => {
+      el.removeEventListener('wheel', onWheel)
+      if (hintTimerRef.current) clearTimeout(hintTimerRef.current)
+    }
   }, [enableZoom, clampViewBox]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Pan (click-drag) ──────────────────────────────────────────────
@@ -704,6 +719,20 @@ export function InteractiveMap({
               </a>
             )}
           </div>
+        </div>
+      )}
+
+      {/* ── Scroll-zoom hint (shown when scrolling over the map without a modifier) ── */}
+      {enableZoom && (
+        <div
+          aria-hidden="true"
+          className={`pointer-events-none absolute inset-x-0 top-3 flex justify-center transition-opacity duration-200 ${
+            showZoomHint ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          <span className="rounded-full bg-[color:var(--color-ink)]/85 px-4 py-1.5 text-xs font-medium text-[color:var(--color-surface)] shadow-lg">
+            Use ⌘ / Ctrl + scroll (or pinch) to zoom
+          </span>
         </div>
       )}
 
