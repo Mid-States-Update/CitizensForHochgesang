@@ -5,7 +5,7 @@
   "scripts": {
     "dev:web": "pnpm -C web dev",
     "dev:studio": "pnpm -C studio dev",
-    "build:web": "pnpm -C web build",
+    "build:web": "node -e \"require('fs').rmSync('web/.next/cache',{recursive:true,force:true})\" && pnpm -C web build",
     "build:studio": "pnpm -C studio build",
     "lint:web": "pnpm -C web lint",
     "test": "pnpm -C web test",
