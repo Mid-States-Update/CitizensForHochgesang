@@ -221,11 +221,16 @@ export function EventsFeed({events}: EventsFeedProps) {
 
   // Collapse the past-events section automatically when the tag filter changes
   // and the current tag has no past events (avoids an empty open section).
-  useEffect(() => {
-    if (filteredPast.length === 0) {
+  // Adjusted during render (React's recommended alternative to a setState
+  // effect) by tracking the previous emptiness of the past list.
+  const pastIsEmpty = filteredPast.length === 0
+  const [prevPastIsEmpty, setPrevPastIsEmpty] = useState(pastIsEmpty)
+  if (pastIsEmpty !== prevPastIsEmpty) {
+    setPrevPastIsEmpty(pastIsEmpty)
+    if (pastIsEmpty && showPast) {
       setShowPast(false)
     }
-  }, [filteredPast.length])
+  }
 
   useEffect(() => {
     const sentinel = sentinelRef.current

@@ -1,10 +1,22 @@
 'use client'
 
-import {useEffect, useMemo, useRef, useState} from 'react'
+import {useEffect, useMemo, useState, useSyncExternalStore} from 'react'
 import {PortableText, type PortableTextComponents} from '@portabletext/react'
 import {CmsLink} from '@/components/cms-link'
 import {sharedBlockTypes} from '@/components/portable-block-types'
 import type {CountdownTimer, PostBodyNode} from '@/lib/cms/types'
+
+// Hydration-safe "are we on the client yet" gate. Returns false during SSR and
+// the first client render (so server/client markup match), then true after
+// hydration — without calling setState inside an effect.
+const emptySubscribe = () => () => {}
+function useIsClient(): boolean {
+  return useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  )
+}
 
 // ---------------------------------------------------------------------------
 // Pure helpers — exported for testing
@@ -109,22 +121,23 @@ function FlipDigit({digit}: {digit: string}) {
   const [display, setDisplay] = useState(digit)
   const [prev, setPrev] = useState(digit)
   const [flipping, setFlipping] = useState(false)
-  const flipId = useRef(0)
 
+  // When a new digit arrives, capture the outgoing one and start the flip.
+  // Adjusted during render (React's recommended alternative to a setState
+  // effect); the condition converges immediately since display becomes digit.
+  if (digit !== display) {
+    setPrev(display)
+    setDisplay(digit)
+    setFlipping(true)
+  }
+
+  // End the flip 600ms after it begins. The setState runs in the timeout
+  // callback, not synchronously in the effect body.
   useEffect(() => {
-    if (digit !== display) {
-      flipId.current += 1
-      setPrev(display)
-      setDisplay(digit)
-      setFlipping(true)
-
-      const timer = setTimeout(() => {
-        setFlipping(false)
-      }, 600)
-
-      return () => clearTimeout(timer)
-    }
-  }, [digit, display])
+    if (!flipping) return
+    const timer = setTimeout(() => setFlipping(false), 600)
+    return () => clearTimeout(timer)
+  }, [flipping, display])
 
   return (
     <span className="flip-digit" aria-hidden="true">
@@ -136,12 +149,12 @@ function FlipDigit({digit}: {digit: string}) {
       </span>
       <span className="flip-hinge" />
       {flipping && (
-        <span key={`t${flipId.current}`} className="flip-flap-top">
+        <span key={`t${prev}-${display}`} className="flip-flap-top">
           <span className="flip-char">{prev}</span>
         </span>
       )}
       {flipping && (
-        <span key={`b${flipId.current}`} className="flip-flap-bot">
+        <span key={`b${prev}-${display}`} className="flip-flap-bot">
           <span className="flip-char">{display}</span>
         </span>
       )}
@@ -201,10 +214,9 @@ function RichBody({value, className}: {value: unknown[]; className?: string}) {
 
 function SingleClock({timer}: {timer: ResolvedTimer}) {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(() => computeTimeLeft(timer._target))
-  const [mounted, setMounted] = useState(false)
+  const mounted = useIsClient()
 
   useEffect(() => {
-    setMounted(true)
     const id = setInterval(() => {
       setTimeLeft(computeTimeLeft(timer._target))
     }, 1000)

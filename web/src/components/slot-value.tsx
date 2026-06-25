@@ -1,6 +1,27 @@
 'use client'
 
-import {useEffect, useRef, useState, useCallback} from 'react'
+import {useEffect, useRef, useState, useCallback, useSyncExternalStore} from 'react'
+
+// ---------------------------------------------------------------------------
+// prefers-reduced-motion — read via useSyncExternalStore so it's hydration-safe
+// and doesn't require a setState call inside an effect.
+// ---------------------------------------------------------------------------
+const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
+
+function subscribeReducedMotion(callback: () => void): () => void {
+  if (typeof window === 'undefined' || !window.matchMedia) return () => {}
+  const mq = window.matchMedia(REDUCED_MOTION_QUERY)
+  mq.addEventListener('change', callback)
+  return () => mq.removeEventListener('change', callback)
+}
+
+function usePrefersReducedMotion(): boolean {
+  return useSyncExternalStore(
+    subscribeReducedMotion,
+    () => window.matchMedia(REDUCED_MOTION_QUERY).matches,
+    () => false,
+  )
+}
 
 // ---------------------------------------------------------------------------
 // Character pools — each character type scrambles within its own set
@@ -104,6 +125,7 @@ export function SlotValue({
   const ref = useRef<HTMLSpanElement>(null)
   const [display, setDisplay] = useState(value)
   const hasPlayedRef = useRef(false)
+  const reducedMotion = usePrefersReducedMotion()
 
   const animate = useCallback(() => {
     const totalChars = value.length
@@ -153,12 +175,9 @@ export function SlotValue({
     const el = ref.current
     if (!el) return
 
-    // Respect prefers-reduced-motion
-    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
-    if (motionQuery.matches) {
-      setDisplay(value)
-      return
-    }
+    // Reduced-motion users see the final value directly (rendered below); skip
+    // setting up the scramble animation entirely.
+    if (reducedMotion) return
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -189,7 +208,7 @@ export function SlotValue({
     observer.observe(el)
 
     return () => observer.disconnect()
-  }, [value, startDelay, triggerThreshold, replayOnReenter, animate])
+  }, [value, startDelay, triggerThreshold, replayOnReenter, animate, reducedMotion])
 
   return (
     <span
@@ -197,7 +216,7 @@ export function SlotValue({
       className={className}
       aria-label={value}
     >
-      {display}
+      {reducedMotion ? value : display}
     </span>
   )
 }

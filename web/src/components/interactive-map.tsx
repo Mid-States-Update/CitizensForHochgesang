@@ -4,11 +4,7 @@ import {useCallback, useEffect, useId, useMemo, useRef, useState} from 'react'
 
 import type {
   InteractiveMapData,
-  MapLayerData,
-  MapOverlayData,
-  MapPinData,
   MapProjection,
-  MapRegionData,
   MapViewport,
   PostBodyNode,
 } from '@/lib/cms/types'
@@ -352,8 +348,11 @@ export function InteractiveMap({
   function animateViewBox(to: number[], duration = 350) {
     cancelAnimationFrame(rafRef.current)
     const from = viewBoxRef.current.split(' ').map(Number)
-    const start = performance.now()
+    // Use the first rAF callback timestamp as the baseline instead of
+    // performance.now() (an impure call flagged by the react-hooks rules).
+    let start: number | null = null
     function tick(now: number) {
+      if (start === null) start = now
       const t = easeInOut(Math.min((now - start) / duration, 1))
       const interp = from.map((v, i) => v + (to[i] - v) * t)
       applyViewBox(clampViewBox(interp).join(' '))
@@ -369,9 +368,14 @@ export function InteractiveMap({
     if (svgRef.current) {
       const rect = svgRef.current.getBoundingClientRect()
       const vb = viewBoxRef.current.split(' ').map(Number)
-      const screenX = rect.left + ((svgX - vb[0]) / vb[2]) * rect.width
-      const screenY = rect.top + ((svgY - vb[1]) / vb[3]) * rect.height
-      setPopupPosition({x: screenX, y: screenY})
+      // Convert the SVG point to a container-relative offset and clamp it to the
+      // map bounds here (in an event handler, where ref access is allowed) so the
+      // render path never needs to read the ref.
+      const relX = ((svgX - vb[0]) / vb[2]) * rect.width
+      const relY = ((svgY - vb[1]) / vb[3]) * rect.height
+      const left = Math.min(Math.max(8, relX - 144), rect.width - 296)
+      const top = Math.min(Math.max(8, relY - 20), mapHeight - 80)
+      setPopupPosition({x: left, y: top})
     }
   }
 
@@ -667,14 +671,8 @@ export function InteractiveMap({
         <div
           className="absolute z-10 w-72 rounded-lg border border-[color:var(--color-border)] bg-[color:var(--color-surface)] shadow-xl"
           style={{
-            left: Math.min(
-              Math.max(8, popupPosition.x - (svgRef.current?.getBoundingClientRect().left ?? 0) - 144),
-              (svgRef.current?.getBoundingClientRect().width ?? 300) - 296,
-            ),
-            top: Math.min(
-              Math.max(8, popupPosition.y - (svgRef.current?.getBoundingClientRect().top ?? 0) - 20),
-              mapHeight - 80,
-            ),
+            left: popupPosition.x,
+            top: popupPosition.y,
           }}
           onClick={(e) => e.stopPropagation()}
         >
