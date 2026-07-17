@@ -42,6 +42,11 @@ export const deskStructure: StructureResolver = (S) =>
         .title('FAQs')
         .child(S.documentTypeList('faq').defaultOrdering([{field: 'orderRank', direction: 'asc'}])),
       S.listItem()
+        .title('County Pages')
+        .child(
+          S.documentTypeList('countyPage').defaultOrdering([{field: 'orderRank', direction: 'asc'}]),
+        ),
+      S.listItem()
         .title('Media & Press')
         .child(
           S.list()

@@ -766,6 +766,57 @@
     @apply text-sm text-[color:var(--color-muted)];
   }
 
+  /* ── County pages (/district/<slug>) ── */
+  .county-tag {
+    @apply inline-flex w-fit items-center rounded-md px-2 py-0.5 text-[0.66rem] font-bold uppercase tracking-[0.08em];
+  }
+
+  .county-tag-stand {
+    background: color-mix(in srgb, var(--color-accent) 14%, var(--color-surface));
+    color: var(--color-accent);
+  }
+
+  .county-tag-listening {
+    background: color-mix(in srgb, #2d5c3c 12%, var(--color-surface));
+    color: color-mix(in srgb, #2d5c3c 80%, var(--color-ink));
+  }
+
+  .county-tag-radar {
+    background: color-mix(in srgb, #a37a14 14%, var(--color-surface));
+    color: color-mix(in srgb, #a37a14 80%, var(--color-ink));
+  }
+
+  .county-sources {
+    @apply mt-3 flex flex-wrap gap-x-4 gap-y-1 border-t border-[color:var(--color-border)] pt-3 text-xs text-[color:var(--color-muted)];
+  }
+
+  .county-listening {
+    border-left: 4px solid var(--color-accent);
+    @apply rounded-r-2xl bg-[color:var(--color-surface)]/80 px-5 py-4;
+  }
+
+  /* Homepage strip linking the six county pages */
+  .county-strip {
+    @apply grid gap-3 sm:grid-cols-2 lg:grid-cols-3;
+  }
+
+  .county-strip-item {
+    @apply flex flex-col gap-1 rounded-2xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)]/70 px-5 py-4 transition;
+  }
+
+  .county-strip-item:hover {
+    border-color: color-mix(in srgb, var(--color-accent) 40%, var(--color-border));
+    background-color: color-mix(in srgb, var(--color-highlight) 40%, var(--color-surface));
+  }
+
+  .county-strip-name {
+    @apply text-sm font-semibold text-[color:var(--color-ink)];
+  }
+
+  .county-strip-towns {
+    @apply text-xs text-[color:var(--color-muted)];
+  }
+
   .card {
     @apply rounded-3xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] p-5 shadow-[0_10px_30px_rgba(47,24,84,0.1)] transition sm:p-6;
     transition-property: transform, box-shadow, border-color, background-color;

@@ -17,6 +17,7 @@ import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-vi
 import {extractBlocksOfType} from '@/lib/cms/portable-split'
 import {isPageEnabled} from '@/lib/cms/types'
 import {
+  getCountyPages,
   getFundraisingLinks,
   getHomePageSettings,
   getMediaLinks,
@@ -61,15 +62,17 @@ function resolveActionClass(style: 'primary' | 'outline' | 'accent' | undefined)
 }
 
 export default async function Home() {
-  const [settings, home, posts, events, mediaLinks, fundraisingLinks, pageVisualSettings] = await Promise.all([
-    getSiteSettings(),
-    getHomePageSettings(),
-    getRecentPosts(3),
-    getUpcomingEvents(),
-    getMediaLinks(),
-    getFundraisingLinks(),
-    getPageVisualSettings('home'),
-  ])
+  const [settings, home, posts, events, mediaLinks, fundraisingLinks, pageVisualSettings, countyPages] =
+    await Promise.all([
+      getSiteSettings(),
+      getHomePageSettings(),
+      getRecentPosts(3),
+      getUpcomingEvents(),
+      getMediaLinks(),
+      getFundraisingLinks(),
+      getPageVisualSettings('home'),
+      getCountyPages(),
+    ])
 
   // Prefer visuals embedded in homePageSettings, fall back to standalone query
   const visuals = home.visuals ?? pageVisualSettings
@@ -417,6 +420,16 @@ export default async function Home() {
             <p className="eyebrow">Our district</p>
             <h2 className="section-title">Six counties, one district</h2>
             <PortableText value={districtMapBlocks as never} components={{types: {...mapEmbedBlockType}}} />
+            {countyPages.length > 0 ? (
+              <div className="county-strip">
+                {countyPages.map((county) => (
+                  <Link key={county.slug} className="county-strip-item" href={`/district/${county.slug}`}>
+                    <span className="county-strip-name">{county.title}</span>
+                    <span className="county-strip-towns">{county.townsLine}</span>
+                  </Link>
+                ))}
+              </div>
+            ) : null}
           </div>
         </section>
       ) : null}

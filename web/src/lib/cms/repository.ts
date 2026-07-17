@@ -12,6 +12,8 @@ import {
 import type {
   AboutPriorities,
   CampaignEvent,
+  CountyPageDetail,
+  CountyPageSummary,
   FaqItem,
   FundraisingLink,
   HomePageSettings,
@@ -688,5 +690,58 @@ export async function assertPageEnabled(pageKey: PageVisibilityKey): Promise<voi
   const settings = await getSiteSettings()
   if (!isPageEnabled(settings.pageVisibility, pageKey)) {
     notFound()
+  }
+}
+
+/* ── County pages ──────────────────────────────────────────────────── */
+
+/** Returns all published county pages, ordered by their studio sort key. */
+export async function getCountyPages(): Promise<CountyPageSummary[]> {
+  const query = `*[_type=="countyPage" && defined(slug.current)] | order(orderRank asc){
+    title,
+    "slug": slug.current,
+    townsLine,
+    intro
+  }`
+
+  const counties = await sanityQuery<CountyPageSummary[]>(query)
+  return counties ?? []
+}
+
+/** Returns one county page with its full issue-card content, or null. */
+export async function getCountyPageBySlug(slug: string): Promise<CountyPageDetail | null> {
+  const query = `*[_type=="countyPage" && slug.current==$slug][0]{
+    title,
+    "slug": slug.current,
+    townsLine,
+    intro,
+    "heroImageUrl": heroImage.asset->url,
+    "heroImageAlt": heroImage.alt,
+    ledeTitle,
+    "ledeBody": ledeBody[]{ ... },
+    "issueCards": issueCards[]{
+      title,
+      tag,
+      "body": body[]{ ... },
+      platformSlug,
+      "sources": sources[]{label, url}
+    },
+    listeningPrompt,
+    "localOutlets": localOutlets[]{name, url},
+    lastUpdated
+  }`
+
+  const county = await sanityQuery<CountyPageDetail>(query, {slug})
+  if (!county) {
+    return null
+  }
+
+  return {
+    ...county,
+    issueCards: (county.issueCards ?? []).map((card) => ({
+      ...card,
+      sources: card.sources ?? [],
+    })),
+    localOutlets: county.localOutlets ?? [],
   }
 }

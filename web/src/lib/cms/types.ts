@@ -503,3 +503,38 @@ export type MapEmbedData = {
   caption?: string
   heightOverride?: number
 }
+
+/* ── County pages (/district/<slug>) ─────────────────────────────── */
+
+export type CountyIssueTag = 'stand' | 'listening' | 'radar'
+
+export type CountySourceLink = {
+  label: string
+  url: string
+}
+
+export type CountyIssueCard = {
+  title: string
+  tag: CountyIssueTag
+  body: PostBodyNode[]
+  platformSlug?: string | null
+  sources: CountySourceLink[]
+}
+
+export type CountyPageSummary = {
+  title: string
+  slug: string
+  townsLine: string
+  intro: string
+}
+
+export type CountyPageDetail = CountyPageSummary & {
+  heroImageUrl?: string | null
+  heroImageAlt?: string | null
+  ledeTitle: string
+  ledeBody: PostBodyNode[]
+  issueCards: CountyIssueCard[]
+  listeningPrompt: string
+  localOutlets: Array<{name: string; url: string}>
+  lastUpdated: string
+}

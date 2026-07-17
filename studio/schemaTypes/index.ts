@@ -1,4 +1,5 @@
 import {aboutPriorities} from './aboutPriorities'
+import {countyPage} from './countyPage'
 import {ctaButton} from './ctaButton'
 import {event} from './event'
 import {eventsPageSettings} from './eventsPageSettings'
@@ -43,6 +44,7 @@ export const schemaTypes = [
   post,
   event,
   faq,
+  countyPage,
   interactiveMap,
   mapRegionPopup,
   mediaLink,
