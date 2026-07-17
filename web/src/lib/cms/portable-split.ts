@@ -22,16 +22,17 @@ function isEmptyTextBlock(block: PortableBlock): boolean {
   return children.every((child) => !child.text || child.text.trim() === '')
 }
 
-export function splitLeadImage(body: PortableBlock[] | undefined): {
+export function splitLeadImage<T>(body: T[] | undefined): {
   leadImage: LeadImage | undefined
-  rest: PortableBlock[]
+  rest: T[]
 } {
-  const blocks = Array.isArray(body) ? body.filter((block) => !isEmptyTextBlock(block)) : []
+  const blocks = Array.isArray(body) ? body.filter((block) => !isEmptyTextBlock(block as PortableBlock)) : []
   const [first, ...others] = blocks
+  const lead = first as PortableBlock | undefined
 
-  if (first && first._type === 'image' && typeof first.asset?.url === 'string') {
+  if (lead && lead._type === 'image' && typeof lead.asset?.url === 'string') {
     return {
-      leadImage: {url: first.asset.url, alt: typeof first.alt === 'string' ? first.alt : ''},
+      leadImage: {url: lead.asset.url, alt: typeof lead.alt === 'string' ? lead.alt : ''},
       rest: others,
     }
   }
