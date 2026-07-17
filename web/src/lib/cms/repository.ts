@@ -459,8 +459,11 @@ export async function getMediaLinks(limit?: number): Promise<MediaLink[]> {
     title,
     mediaType,
     url,
+    description,
     publishedAt,
-    "thumbnailUrl": thumbnail.asset->url
+    "thumbnailUrl": thumbnail.asset->url,
+    "highlight": coalesce(highlight, false),
+    highlightNote
   }`
 
   const media = await sanityQuery<Array<Omit<MediaLink, 'id'> & {_id: string}>>(query)

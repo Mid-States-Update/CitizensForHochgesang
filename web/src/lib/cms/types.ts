@@ -378,8 +378,11 @@ export type MediaLink = {
   title: string
   mediaType: MediaType
   url: string
+  description?: string
   publishedAt?: string
   thumbnailUrl?: string
+  highlight?: boolean
+  highlightNote?: string
 }
 
 export type FundraisingLink = {

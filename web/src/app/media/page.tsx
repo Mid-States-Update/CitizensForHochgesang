@@ -123,12 +123,22 @@ export default async function MediaPage() {
                   />
                 </div>
               ) : null}
-              <p className="article-meta text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--color-muted)]">
-                {getTypeLabel(item.mediaType)}
-              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <p className="article-meta text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--color-muted)]">
+                  {getTypeLabel(item.mediaType)}
+                </p>
+                {item.highlight ? (
+                  <span className="pill-badge pill-badge-active text-xs">
+                    ★ {item.highlightNote?.trim() || 'Featured'}
+                  </span>
+                ) : null}
+              </div>
               <h2 className="article-title text-xl font-semibold text-[color:var(--color-ink)]">{item.title}</h2>
               {item.publishedAt ? (
                 <p className="text-sm text-[color:var(--color-muted)]">Published {formatDate(item.publishedAt)}</p>
+              ) : null}
+              {item.description ? (
+                <p className="text-sm text-[color:var(--color-muted)]">{item.description}</p>
               ) : null}
               <div>
                 <CmsLink className="article-cta link-pill link-pill-media" href={item.url}>
