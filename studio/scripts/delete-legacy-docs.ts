@@ -27,7 +27,9 @@ const LEGACY_IDS = [
 ]
 
 async function main() {
-  const existing = await client.fetch<string[]>(`*[_id in $ids]._id`, {ids: LEGACY_IDS})
+  // perspective: 'raw' so draft documents (drafts.*) are visible to the
+  // existence check — the client's default 'published' perspective hides them.
+  const existing = await client.fetch<string[]>(`*[_id in $ids]._id`, {ids: LEGACY_IDS}, {perspective: 'raw'})
   if (!existing.length) {
     console.log('No legacy documents found. Nothing to delete.')
     return
