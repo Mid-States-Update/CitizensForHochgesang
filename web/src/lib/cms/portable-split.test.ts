@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest'
 
-import {splitLeadImage} from './portable-split'
+import {extractBlocksOfType, splitLeadImage} from './portable-split'
 
 function imageBlock(key: string, url: string, alt?: string) {
   return {_type: 'image', _key: key, alt, asset: {url}}
@@ -53,5 +53,30 @@ describe('splitLeadImage', () => {
     const {leadImage} = splitLeadImage([imageBlock('img', 'https://cdn.example/p.jpg')])
 
     expect(leadImage).toEqual({url: 'https://cdn.example/p.jpg', alt: ''})
+  })
+})
+
+describe('extractBlocksOfType', () => {
+  it('pulls matching blocks out and preserves the rest in order', () => {
+    const map = {_type: 'mapEmbed', _key: 'map-1'}
+    const body = [textBlock('b1', 'Before'), map, textBlock('b2', 'After')]
+
+    const {extracted, rest} = extractBlocksOfType(body, 'mapEmbed')
+
+    expect(extracted).toEqual([map])
+    expect(rest.map((block) => (block as {_key: string})._key)).toEqual(['b1', 'b2'])
+  })
+
+  it('returns everything untouched when no block matches', () => {
+    const body = [textBlock('b1', 'Only text')]
+
+    const {extracted, rest} = extractBlocksOfType(body, 'mapEmbed')
+
+    expect(extracted).toEqual([])
+    expect(rest).toHaveLength(1)
+  })
+
+  it('handles a missing body', () => {
+    expect(extractBlocksOfType(undefined, 'mapEmbed')).toEqual({extracted: [], rest: []})
   })
 })

@@ -22,6 +22,16 @@ function isEmptyTextBlock(block: PortableBlock): boolean {
   return children.every((child) => !child.text || child.text.trim() === '')
 }
 
+export function extractBlocksOfType<T>(
+  body: T[] | undefined,
+  type: string,
+): {extracted: T[]; rest: T[]} {
+  const blocks = Array.isArray(body) ? body : []
+  const extracted = blocks.filter((block) => (block as PortableBlock)._type === type)
+  const rest = blocks.filter((block) => (block as PortableBlock)._type !== type)
+  return {extracted, rest}
+}
+
 export function splitLeadImage<T>(body: T[] | undefined): {
   leadImage: LeadImage | undefined
   rest: T[]

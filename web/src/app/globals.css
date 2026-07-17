@@ -704,6 +704,41 @@
     }
   }
 
+  /* Next-event ribbon: slim clickable band directly under the hero */
+  .event-ribbon {
+    @apply flex flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)]/80 px-5 py-3 text-sm transition;
+  }
+
+  .event-ribbon:hover {
+    border-color: color-mix(in srgb, var(--color-accent) 40%, var(--color-border));
+    background-color: color-mix(in srgb, var(--color-highlight) 40%, var(--color-surface));
+  }
+
+  .event-ribbon-label {
+    @apply text-xs font-semibold uppercase tracking-[0.25em] text-[color:var(--color-accent)];
+  }
+
+  .event-ribbon-title {
+    @apply font-semibold text-[color:var(--color-ink)];
+  }
+
+  .event-ribbon-meta {
+    @apply text-[color:var(--color-muted)];
+  }
+
+  .event-ribbon-cta {
+    @apply font-semibold text-[color:var(--color-accent)] sm:ml-auto;
+  }
+
+  /* Homepage media feature: thumbnail beside the pitch for the top video */
+  .media-feature {
+    @apply grid gap-6 md:grid-cols-[minmax(0,22rem)_1fr] md:items-center;
+  }
+
+  .media-feature-media {
+    @apply block overflow-hidden rounded-2xl;
+  }
+
   /* Flow variant of the article body: normal block flow (no grid) so line
      boxes shorten around a floated image; margins replicate the grid gap. */
   .article-experience-flow {

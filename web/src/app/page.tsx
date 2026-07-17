@@ -1,16 +1,20 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import {PortableText} from '@portabletext/react'
 import {FaBullhorn, FaCalendarAlt, FaHandsHelping, FaNewspaper, FaVideo, FaVoteYea} from 'react-icons/fa'
 
 import {ElectionCountdown} from '@/components/election-countdown'
+import {mapEmbedBlockType} from '@/components/map-embed-block-type'
 import {CmsLink} from '@/components/cms-link'
 import {MidPageCta} from '@/components/mid-page-cta'
 import {PageEffects} from '@/components/page-effects'
 import {ProofSection} from '@/components/proof-section'
 import {WhyRunningSection} from '@/components/why-running-section'
+import {pickFeaturedMedia} from '@/lib/cms/featured-media'
 import {formatDate, formatDateTime} from '@/lib/cms/format'
 import {resolveCmsIcon} from '@/lib/cms/icon-map'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
+import {extractBlocksOfType} from '@/lib/cms/portable-split'
 import {isPageEnabled} from '@/lib/cms/types'
 import {
   getFundraisingLinks,
@@ -62,7 +66,7 @@ export default async function Home() {
     getHomePageSettings(),
     getRecentPosts(3),
     getUpcomingEvents(),
-    getMediaLinks(3),
+    getMediaLinks(),
     getFundraisingLinks(),
     getPageVisualSettings('home'),
   ])
@@ -90,6 +94,15 @@ export default async function Home() {
   const showNews = isPageEnabled(settings.pageVisibility, 'news') && posts.length > 0
   const showEvents = isPageEnabled(settings.pageVisibility, 'events') && events.length > 0
   const showMedia = isPageEnabled(settings.pageVisibility, 'media') && mediaLinks.length > 0
+
+  // The district map lives inside the Why I'm Running body in Sanity; pull it
+  // out so the story stays tight and the map gets its own section near events.
+  const {extracted: districtMapBlocks, rest: whyRunningStory} = extractBlocksOfType(
+    home.whyRunningBody ?? [],
+    'mapEmbed',
+  )
+  const nextEvent = showEvents ? events[0] : undefined
+  const featuredMedia = pickFeaturedMedia(mediaLinks)
 
   return (
     <main className={getPageShellClasses(visuals)} {...getPageShellDataAttributes(visuals)}>
@@ -274,12 +287,16 @@ export default async function Home() {
 
       </section>
 
-      {/* ── 2. "Why I'm Running" Section ── */}
-      <WhyRunningSection
-        heading={home.whyRunningHeading}
-        body={home.whyRunningBody}
-        imageUrl={home.whyRunningImageUrl}
-      />
+      {/* ── 2. Next-event ribbon ── */}
+      {nextEvent ? (
+        <CmsLink href="/events" className="event-ribbon">
+          <span aria-hidden>📍</span>
+          <span className="event-ribbon-label">Next event</span>
+          <span className="event-ribbon-title">{nextEvent.title}</span>
+          <span className="event-ribbon-meta">{formatDateTime(nextEvent.startDate)}</span>
+          <span className="event-ribbon-cta">View event →</span>
+        </CmsLink>
+      ) : null}
 
       {/* ── 3. Priority Cards ── */}
       {homeSectionCards.length > 0 ? (
@@ -309,19 +326,18 @@ export default async function Home() {
         </section>
       ) : null}
 
-      {/* ── 4. "Proof / Credibility" Section ── */}
+      {/* ── 4. "Why I'm Running" (story only; the district map renders below) ── */}
+      <WhyRunningSection
+        heading={home.whyRunningHeading}
+        body={whyRunningStory}
+        imageUrl={home.whyRunningImageUrl}
+      />
+
+      {/* ── 5. "Proof / Credibility" Section ── */}
       <ProofSection
         heading={home.proofHeading}
         stats={home.proofStats}
         body={home.proofBody}
-      />
-
-      {/* ── 5. Mid-Page CTA ── */}
-      <MidPageCta
-        heading={home.midCtaHeading}
-        copy={home.midCtaCopy}
-        donateUrl={settings.donateUrl}
-        volunteerUrl={settings.volunteerUrl}
       />
 
       {/* ── 6. News / Updates ── */}
@@ -394,31 +410,67 @@ export default async function Home() {
         </section>
       ) : null}
 
-      {/* ── 8. Media ── */}
-      {showMedia ? (
+      {/* ── 8. Our District map ── */}
+      {districtMapBlocks.length > 0 ? (
         <section className="homepage-feed-section">
           <div className="card flex flex-col gap-4">
-            <p className="eyebrow">{home.mediaSectionEyebrow}</p>
-            <h2 className="section-title">{home.mediaSectionHeading}</h2>
-            <div className="grid gap-3">
-              {mediaLinks.map((item) => (
-                <CmsLink
-                  key={item.id}
-                  href={item.url}
-                  className="rounded-2xl border border-[color:var(--color-border)] px-4 py-3 text-sm font-semibold text-[color:var(--color-accent)] transition hover:bg-[color:var(--color-highlight)]"
-                >
-                  {item.title}
-                </CmsLink>
-              ))}
-            </div>
-            <Link className="btn btn-outline" href="/media">
-              <FaVideo aria-hidden />
-              {home.mediaSectionCtaLabel}
-            </Link>
+            <p className="eyebrow">Our district</p>
+            <h2 className="section-title">Six counties, one district</h2>
+            <PortableText value={districtMapBlocks as never} components={{types: {...mapEmbedBlockType}}} />
           </div>
         </section>
       ) : null}
-      {/* ── 9. Election Countdown ── */}
+
+      {/* ── 9. Mid-Page CTA ── */}
+      <MidPageCta
+        heading={home.midCtaHeading}
+        copy={home.midCtaCopy}
+        donateUrl={settings.donateUrl}
+        volunteerUrl={settings.volunteerUrl}
+      />
+
+      {/* ── 10. Media feature ── */}
+      {showMedia && featuredMedia ? (
+        <section className="homepage-feed-section">
+          <div className="card flex flex-col gap-6">
+            <p className="eyebrow">{home.mediaSectionEyebrow}</p>
+            <h2 className="section-title">{home.mediaSectionHeading}</h2>
+            <div className="media-feature">
+              {featuredMedia.thumbnailUrl ? (
+                <CmsLink href={featuredMedia.url} className="media-feature-media">
+                  <Image
+                    src={featuredMedia.thumbnailUrl}
+                    alt={`${featuredMedia.title} thumbnail`}
+                    width={640}
+                    height={360}
+                    className="h-full w-full rounded-2xl object-cover"
+                    unoptimized
+                  />
+                </CmsLink>
+              ) : null}
+              <div className="flex flex-col items-start gap-3">
+                {featuredMedia.highlight && featuredMedia.highlightNote ? (
+                  <span className="pill-badge pill-badge-active text-xs">★ {featuredMedia.highlightNote}</span>
+                ) : null}
+                <h3 className="text-xl font-semibold text-[color:var(--color-ink)]">{featuredMedia.title}</h3>
+                {featuredMedia.description ? (
+                  <p className="text-sm text-[color:var(--color-muted)]">{featuredMedia.description}</p>
+                ) : null}
+                <div className="flex flex-wrap gap-3">
+                  <CmsLink className="btn btn-primary" href={featuredMedia.url}>
+                    <FaVideo aria-hidden />
+                    Watch
+                  </CmsLink>
+                  <Link className="btn btn-outline" href="/media">
+                    {home.mediaSectionCtaLabel}
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : null}
+      {/* ── 11. Election Countdown ── */}
       <ElectionCountdown timers={home.countdownTimers} />
     </main>
   )
