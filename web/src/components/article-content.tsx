@@ -9,6 +9,11 @@ import type {PostBodyNode, StatCalloutItem, StorySceneAnimation, StorySceneLayou
 
 type ArticleContentProps = {
   body: PostBodyNode[]
+  /**
+   * 'grid' (default) stacks blocks with a fixed gap. 'flow' renders normal
+   * block flow so prose can wrap around a floated image placed beside it.
+   */
+  layout?: 'grid' | 'flow'
 }
 
 function clamp(value: number | undefined, min: number, max: number, fallback: number) {
@@ -193,9 +198,14 @@ const articleComponents: PortableTextComponents = {
   },
 }
 
-export function ArticleContent({body}: ArticleContentProps) {
+export function ArticleContent({body, layout = 'grid'}: ArticleContentProps) {
+  const layoutClasses =
+    layout === 'flow'
+      ? 'article-experience article-experience-flow text-[color:var(--color-ink)]'
+      : 'article-experience grid gap-5 text-[color:var(--color-ink)]'
+
   return (
-    <div className="article-experience grid gap-5 text-[color:var(--color-ink)]">
+    <div className={layoutClasses}>
       <PortableText value={body} components={articleComponents} />
     </div>
   )

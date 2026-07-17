@@ -676,20 +676,42 @@
     object-position: center 24%;
   }
 
-  /* About feature: portrait column + bio prose side by side, full width */
-  .about-feature {
-    @apply grid gap-6 md:grid-cols-[minmax(0,20rem)_1fr] md:gap-10 lg:grid-cols-[minmax(0,24rem)_1fr];
+  /* About feature: bio prose wraps around the floated portrait on wider
+     screens; the portrait stacks full-width above the text on phones so
+     nothing gets crushed beside it. */
+  .about-flow {
+    @apply block;
   }
 
-  .about-feature-media {
-    @apply md:sticky md:top-24;
+  .about-flow::after {
+    content: '';
+    display: block;
+    clear: both;
   }
 
-  .about-feature-photo {
-    @apply w-full object-cover;
+  .about-flow-photo {
+    @apply mb-5 w-full object-cover;
     aspect-ratio: 1 / 1;
     border-radius: 1.75rem;
     box-shadow: 0 18px 44px color-mix(in srgb, var(--color-accent) 18%, transparent);
+  }
+
+  @media (min-width: 40rem) {
+    .about-flow-photo {
+      float: left;
+      width: clamp(15rem, 42%, 24rem);
+      margin: 0.35rem 2rem 1rem 0;
+    }
+  }
+
+  /* Flow variant of the article body: normal block flow (no grid) so line
+     boxes shorten around a floated image; margins replicate the grid gap. */
+  .article-experience-flow {
+    @apply block;
+  }
+
+  .article-experience-flow > * + * {
+    @apply mt-5;
   }
 
   /* Campaign values: full-width band of chips under the bio */

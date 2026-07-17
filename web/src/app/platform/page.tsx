@@ -41,23 +41,21 @@ export default async function PlatformPage() {
         </p>
       </section>
 
-      <section className="card article-card about-feature">
-        {leadImage ? (
-          <figure className="about-feature-media">
+      <section className="card article-card flex flex-col gap-4">
+        <h2 className="text-xl font-semibold text-[color:var(--color-ink)]">{about.bioHeading}</h2>
+        <div className="about-flow">
+          {leadImage ? (
             <Image
               src={leadImage.url}
               alt={leadImage.alt}
               width={800}
               height={800}
-              className="about-feature-photo"
+              className="about-flow-photo"
               unoptimized
               priority
             />
-          </figure>
-        ) : null}
-        <div className="about-feature-body flex flex-col gap-4">
-          <h2 className="text-xl font-semibold text-[color:var(--color-ink)]">{about.bioHeading}</h2>
-          <ArticleContent body={bioBody} />
+          ) : null}
+          <ArticleContent body={bioBody} layout="flow" />
         </div>
       </section>
 

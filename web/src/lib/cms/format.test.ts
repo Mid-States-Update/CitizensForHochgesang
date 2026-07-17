@@ -35,6 +35,18 @@ describe('formatDateTime', () => {
   it('returns the raw string for an invalid date', () => {
     expect(formatDateTime('garbage')).toBe('garbage')
   })
+
+  it('renders event times in district-local time regardless of server timezone', () => {
+    // 6:30 PM EDT — a UTC build server must not render this as 10:30 PM
+    const result = formatDateTime('2026-07-22T18:30:00-04:00')
+    expect(result).toMatch(/Jul\s+22,\s+2026/)
+    expect(result).toMatch(/6:30\sPM/)
+  })
+
+  it('keeps late-evening events on the correct local date', () => {
+    // 11 PM EDT is the next day in UTC — the date shown must stay local
+    expect(formatDate('2026-07-22T23:00:00-04:00')).toMatch(/Jul\s+22,\s+2026/)
+  })
 })
 
 describe('normalizeHref', () => {
