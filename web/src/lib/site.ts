@@ -1,4 +1,4 @@
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://citizensforhochgesang.com'
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://citizensforhochgesang.org'
 
 export const SITE_NAME = 'Brad Hochgesang for State Senate'
 
