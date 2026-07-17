@@ -1,7 +1,6 @@
 import type {Metadata} from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import {notFound} from 'next/navigation'
 
 import {ArticleContent} from '@/components/article-content'
 import {PageEffects} from '@/components/page-effects'
@@ -21,6 +20,11 @@ const TAG_LABELS: Record<CountyIssueTag, string> = {
 
 export async function generateStaticParams() {
   const counties = await getCountyPages()
+  if (counties.length === 0) {
+    // output:export rejects dynamic routes with zero params. Until the first
+    // county page is published in Sanity, emit one unlinked placeholder path.
+    return [{county: 'coming-soon'}]
+  }
   return counties.map((county) => ({county: county.slug}))
 }
 
@@ -29,7 +33,7 @@ export async function generateMetadata({params}: CountyPageProps): Promise<Metad
   const county = await getCountyPageBySlug(slug)
 
   if (!county) {
-    return {title: 'County not found'}
+    return {title: 'County pages coming soon', robots: {index: false}}
   }
 
   return {
@@ -47,7 +51,26 @@ export default async function CountyPage({params}: CountyPageProps) {
   ])
 
   if (!county) {
-    notFound()
+    // Only reachable via the coming-soon placeholder param (real slugs are
+    // enumerated from published documents at build time).
+    return (
+      <main className={getPageShellClasses(pageVisualSettings)} {...getPageShellDataAttributes(pageVisualSettings)}>
+        <PageEffects visuals={pageVisualSettings} />
+        <section className="card grid gap-4">
+          <p className="eyebrow">Your county</p>
+          <h1 className="section-title">County pages are on the way</h1>
+          <p className="max-w-3xl text-base text-[color:var(--color-muted)]">
+            Pages for every District 48 county are being prepared. In the meantime, the platform page covers where
+            Brad stands.
+          </p>
+          <div>
+            <Link className="btn btn-primary" href="/platform">
+              About &amp; Priorities
+            </Link>
+          </div>
+        </section>
+      </main>
+    )
   }
 
   const formattedUpdated = new Date(`${county.lastUpdated}T12:00:00`).toLocaleDateString('en-US', {
