@@ -6,7 +6,7 @@ import {assertPageEnabled, getMediaLinks, getMediaSettings, getPageVisualSetting
 import Image from 'next/image'
 
 export const metadata = {
-  title: 'Media & Press | Brad Hochgesang for State Senate',
+  title: 'Media & Press',
   description: 'Campaign media coverage, press resources, and direct contact details.',
 }
 

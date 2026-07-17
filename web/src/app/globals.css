@@ -630,10 +630,9 @@
     @apply flex flex-wrap gap-3;
   }
 
-  /* Both layouts: focus and proof span full width below the main columns */
-  .campaign-hero-clean-split .campaign-hero-focus,
-  .campaign-hero-portrait-left .campaign-hero-focus {
-    @apply md:col-span-2 md:grid-cols-2;
+  /* Focus list lives inside the hero text column; proof strip spans below */
+  .campaign-hero-focus {
+    @apply sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2;
   }
 
   .campaign-hero-clean-split .campaign-proof-strip,
@@ -675,6 +674,39 @@
     border-radius: inherit;
     aspect-ratio: auto;
     object-position: center 24%;
+  }
+
+  /* About feature: portrait column + bio prose side by side, full width */
+  .about-feature {
+    @apply grid gap-6 md:grid-cols-[minmax(0,20rem)_1fr] md:gap-10 lg:grid-cols-[minmax(0,24rem)_1fr];
+  }
+
+  .about-feature-media {
+    @apply md:sticky md:top-24;
+  }
+
+  .about-feature-photo {
+    @apply w-full object-cover;
+    aspect-ratio: 1 / 1;
+    border-radius: 1.75rem;
+    box-shadow: 0 18px 44px color-mix(in srgb, var(--color-accent) 18%, transparent);
+  }
+
+  /* Campaign values: full-width band of chips under the bio */
+  .values-band {
+    @apply grid gap-3 sm:grid-cols-2 xl:grid-cols-3;
+  }
+
+  .value-chip {
+    @apply flex flex-col gap-1 rounded-2xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)]/65 px-5 py-4;
+  }
+
+  .value-chip-lead {
+    @apply text-sm font-semibold text-[color:var(--color-ink)];
+  }
+
+  .value-chip-detail {
+    @apply text-sm text-[color:var(--color-muted)];
   }
 
   .card {

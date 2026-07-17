@@ -1,18 +1,34 @@
+import Image from 'next/image'
+
 import {CmsLink} from '@/components/cms-link'
 import {ArticleContent} from '@/components/article-content'
 import {PageEffects} from '@/components/page-effects'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
+import {splitLeadImage} from '@/lib/cms/portable-split'
 import {assertPageEnabled, getAboutPriorities, getPageVisualSettings} from '@/lib/cms/repository'
 
 export const metadata = {
-  title: 'About & Priorities | Brad Hochgesang for State Senate',
+  title: 'About & Priorities',
   description:
     'Background, campaign priorities, and practical commitments for Indiana State Senate District 48.',
+}
+
+function ValueChip({value}: {value: string}) {
+  const [lead, ...tail] = value.split(' — ')
+  const detail = tail.join(' — ')
+
+  return (
+    <li className="value-chip">
+      <span className="value-chip-lead">{lead}</span>
+      {detail ? <span className="value-chip-detail">{detail}</span> : null}
+    </li>
+  )
 }
 
 export default async function PlatformPage() {
   await assertPageEnabled('platform')
   const [about, pageVisualSettings] = await Promise.all([getAboutPriorities(), getPageVisualSettings('platform')])
+  const {leadImage, rest: bioBody} = splitLeadImage(about.bioBody)
 
   return (
     <main className={getPageShellClasses(pageVisualSettings)} {...getPageShellDataAttributes(pageVisualSettings)}>
@@ -25,22 +41,33 @@ export default async function PlatformPage() {
         </p>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-2">
-        <article className="card article-card flex flex-col gap-4">
+      <section className="card article-card about-feature">
+        {leadImage ? (
+          <figure className="about-feature-media">
+            <Image
+              src={leadImage.url}
+              alt={leadImage.alt}
+              width={800}
+              height={800}
+              className="about-feature-photo"
+              unoptimized
+              priority
+            />
+          </figure>
+        ) : null}
+        <div className="about-feature-body flex flex-col gap-4">
           <h2 className="text-xl font-semibold text-[color:var(--color-ink)]">{about.bioHeading}</h2>
-          <ArticleContent body={about.bioBody} />
-        </article>
+          <ArticleContent body={bioBody} />
+        </div>
+      </section>
 
-        <article className="card article-card flex flex-col gap-4">
-          <h2 className="text-xl font-semibold text-[color:var(--color-ink)]">{about.valuesHeading}</h2>
-          <ul className="grid gap-2 text-sm text-[color:var(--color-muted)]">
-            {about.values.map((value) => (
-              <li key={value} className="rounded-2xl border border-[color:var(--color-border)] px-4 py-3">
-                {value}
-              </li>
-            ))}
-          </ul>
-        </article>
+      <section className="flex flex-col gap-4">
+        <h2 className="text-xl font-semibold text-[color:var(--color-ink)]">{about.valuesHeading}</h2>
+        <ul className="values-band">
+          {about.values.map((value) => (
+            <ValueChip key={value} value={value} />
+          ))}
+        </ul>
       </section>
 
       <section className="grid gap-6">

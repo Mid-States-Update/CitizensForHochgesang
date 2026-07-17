@@ -10,7 +10,7 @@ import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-vi
 import {assertPageEnabled, getPageVisualSettings, getUpcomingEvents} from '@/lib/cms/repository'
 
 export const metadata: Metadata = {
-  title: 'Event Details | Brad Hochgesang for State Senate',
+  title: 'Event Details',
   description: 'Detailed campaign event information, updates, and related links.',
 }
 

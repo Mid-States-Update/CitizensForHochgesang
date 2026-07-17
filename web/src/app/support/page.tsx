@@ -7,7 +7,7 @@ import Image from 'next/image'
 import {FaEnvelope, FaHandsHelping, FaVoteYea} from 'react-icons/fa'
 
 export const metadata = {
-  title: 'Support | Brad Hochgesang for State Senate',
+  title: 'Support',
   description: 'Volunteer and donation options for supporting the campaign.',
 }
 

@@ -4,7 +4,7 @@ import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-vi
 import {assertPageEnabled, getAllPosts, getPageVisualSettings} from '@/lib/cms/repository'
 
 export const metadata = {
-  title: 'News | Brad Hochgesang for State Senate',
+  title: 'News',
   description: 'Campaign updates, articles, and announcements from District 48.',
 }
 

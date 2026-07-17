@@ -193,6 +193,13 @@ export default async function Home() {
                   )
                 })}
               </div>
+              {campaignFocusItems.length > 0 ? (
+                <ul className="campaign-focus-list campaign-hero-focus">
+                  {campaignFocusItems.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              ) : null}
             </div>
 
             <div className="campaign-hero-media">
@@ -239,13 +246,6 @@ export default async function Home() {
                 </CmsLink>
               ) : null}
             </div>
-            {campaignFocusItems.length > 0 ? (
-              <ul className="campaign-focus-list campaign-hero-focus">
-                {campaignFocusItems.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            ) : null}
           </>
         )}
 
@@ -338,6 +338,18 @@ export default async function Home() {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {posts.map((post) => (
                 <article key={post.slug} className="article-card rounded-2xl border border-[color:var(--color-border)] px-4 py-4">
+                  {post.coverImageUrl ? (
+                    <Link href={`/news/${post.slug}`} className="card-media mb-3 block">
+                      <Image
+                        src={post.coverImageUrl}
+                        alt=""
+                        width={640}
+                        height={360}
+                        className="h-36 w-full rounded-xl object-cover"
+                        unoptimized
+                      />
+                    </Link>
+                  ) : null}
                   <p className="article-meta text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--color-muted)]">
                     {formatDate(post.publishedAt)}
                   </p>
