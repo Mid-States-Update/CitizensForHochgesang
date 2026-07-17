@@ -1,6 +1,8 @@
 import {aboutPriorities} from './aboutPriorities'
+import {cityPage} from './cityPage'
 import {countyPage} from './countyPage'
 import {ctaButton} from './ctaButton'
+import {issueCard} from './issueCard'
 import {event} from './event'
 import {eventsPageSettings} from './eventsPageSettings'
 import {faq} from './faq'
@@ -28,6 +30,7 @@ import {videoEmbed} from './videoEmbed'
 export const schemaTypes = [
   // Shared object types
   pageVisuals,
+  issueCard,
   // Singletons
   siteSettings,
   aboutPriorities,
@@ -45,6 +48,7 @@ export const schemaTypes = [
   event,
   faq,
   countyPage,
+  cityPage,
   interactiveMap,
   mapRegionPopup,
   mediaLink,

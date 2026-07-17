@@ -1,14 +1,23 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
 
+const COUNTY_SLUGS = [
+  'crawford-county',
+  'dubois-county',
+  'gibson-county',
+  'perry-county',
+  'pike-county',
+  'spencer-county',
+]
+
 /**
- * County page — one per District 48 county (/district/<slug>).
- * Leads with the county's defining local issue, then tagged issue cards.
- * Tags encode the campaign's listening-first rule: "stand" cards may state
- * positions, "listening"/"radar" cards report on-the-record voices only.
+ * City/town page — the third tier of District → County → City
+ * (/district/<county>/<city>). Same issue-card model as county pages,
+ * scoped to one municipality. countySlug ties the page under its county;
+ * the city page only renders when its parent county page is published.
  */
-export const countyPage = defineType({
-  name: 'countyPage',
-  title: 'County Page',
+export const cityPage = defineType({
+  name: 'cityPage',
+  title: 'City Page',
   type: 'document',
   groups: [
     {name: 'content', title: 'Content', default: true},
@@ -17,7 +26,7 @@ export const countyPage = defineType({
   fields: [
     defineField({
       name: 'title',
-      title: 'County Name',
+      title: 'City / Town Name',
       type: 'string',
       group: ['content', 'metadata'],
       validation: (Rule) => Rule.required().max(60),
@@ -31,12 +40,12 @@ export const countyPage = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'townsLine',
-      title: 'Towns Line',
+      name: 'countySlug',
+      title: 'County',
       type: 'string',
-      group: 'content',
-      description: 'Shown under the county name, e.g. "Petersburg · Winslow · Otwell · Spurgeon · Stendal".',
-      validation: (Rule) => Rule.required().max(160),
+      group: 'metadata',
+      options: {list: COUNTY_SLUGS},
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'heroImage',
@@ -44,7 +53,7 @@ export const countyPage = defineType({
       type: 'image',
       group: 'content',
       options: {hotspot: true},
-      description: 'Ideally a photo of Brad in this county. Optional; the page works without one.',
+      description: 'Ideally a photo of Brad in this town. Optional; the page works without one.',
       fields: [
         defineField({
           name: 'alt',
@@ -96,32 +105,6 @@ export const countyPage = defineType({
       validation: (Rule) => Rule.required().max(500),
     }),
     defineField({
-      name: 'localOutlets',
-      title: 'Local News Outlets',
-      type: 'array',
-      group: 'content',
-      of: [
-        defineArrayMember({
-          type: 'object',
-          fields: [
-            defineField({
-              name: 'name',
-              title: 'Name',
-              type: 'string',
-              validation: (Rule) => Rule.required().max(80),
-            }),
-            defineField({
-              name: 'url',
-              title: 'URL',
-              type: 'url',
-              validation: (Rule) => Rule.required(),
-            }),
-          ],
-          preview: {select: {title: 'name', subtitle: 'url'}},
-        }),
-      ],
-    }),
-    defineField({
       name: 'lastUpdated',
       title: 'Last Updated',
       type: 'date',
@@ -134,17 +117,20 @@ export const countyPage = defineType({
       title: 'Sort Order',
       type: 'string',
       group: 'metadata',
-      description: 'Counties are listed in ascending order of this value (e.g. 10, 20, 30).',
+      description: 'Cities are listed within their county in ascending order of this value.',
     }),
   ],
   orderings: [
     {
       title: 'Display order',
       name: 'orderRankAsc',
-      by: [{field: 'orderRank', direction: 'asc'}],
+      by: [
+        {field: 'countySlug', direction: 'asc'},
+        {field: 'orderRank', direction: 'asc'},
+      ],
     },
   ],
   preview: {
-    select: {title: 'title', subtitle: 'townsLine', media: 'heroImage'},
+    select: {title: 'title', subtitle: 'countySlug', media: 'heroImage'},
   },
 })

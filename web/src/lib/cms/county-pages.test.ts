@@ -7,7 +7,7 @@ vi.mock('./client', () => ({
 }))
 
 import {sanityQuery} from './client'
-import {getCountyPages, getCountyPageBySlug} from './repository'
+import {getCountyPages, getCountyPageBySlug, getCityPages, getCityPageBySlug} from './repository'
 
 const mockQuery = vi.mocked(sanityQuery)
 
@@ -82,5 +82,60 @@ describe('getCountyPageBySlug', () => {
     })
     const county = await getCountyPageBySlug('pike-county')
     expect(county?.issueCards[0].sources).toEqual([])
+  })
+})
+
+const jasperSummary = {
+  title: 'Jasper',
+  slug: 'jasper',
+  countySlug: 'dubois-county',
+  intro: 'The county seat and the campaign home base.',
+}
+
+describe('getCityPages', () => {
+  it('returns an empty list when sanityQuery returns null', async () => {
+    mockQuery.mockResolvedValueOnce(null)
+    expect(await getCityPages()).toEqual([])
+  })
+
+  it('passes the county filter through and returns summaries', async () => {
+    mockQuery.mockResolvedValueOnce([jasperSummary])
+    const cities = await getCityPages('dubois-county')
+    expect(cities).toHaveLength(1)
+    expect(cities[0].countySlug).toBe('dubois-county')
+    // The GROQ params must carry the county filter
+    expect(mockQuery.mock.calls[0][1]).toMatchObject({county: 'dubois-county'})
+  })
+})
+
+describe('getCityPageBySlug', () => {
+  it('returns null when not found', async () => {
+    mockQuery.mockResolvedValueOnce(null)
+    expect(await getCityPageBySlug('dubois-county', 'nowhere')).toBeNull()
+  })
+
+  it('returns the full city page and normalizes missing arrays', async () => {
+    mockQuery.mockResolvedValueOnce({
+      ...jasperSummary,
+      heroImageUrl: null,
+      heroImageAlt: null,
+      ledeTitle: 'Lede',
+      ledeBody: [{_type: 'block', _key: 'b1', children: [{_type: 'span', _key: 's1', text: 'Lede.'}]}],
+      issueCards: [
+        {
+          title: 'An issue',
+          tag: 'radar',
+          body: [{_type: 'block', _key: 'b2', children: [{_type: 'span', _key: 's2', text: 'Card.'}]}],
+          platformSlug: null,
+          sources: null,
+        },
+      ],
+      listeningPrompt: 'What am I missing?',
+      lastUpdated: '2026-07-17',
+    })
+    const city = await getCityPageBySlug('dubois-county', 'jasper')
+    expect(city).not.toBeNull()
+    expect(city?.issueCards[0].sources).toEqual([])
+    expect(city?.countySlug).toBe('dubois-county')
   })
 })

@@ -12,6 +12,8 @@ import {
 import type {
   AboutPriorities,
   CampaignEvent,
+  CityPageDetail,
+  CityPageSummary,
   CountyPageDetail,
   CountyPageSummary,
   FaqItem,
@@ -743,5 +745,55 @@ export async function getCountyPageBySlug(slug: string): Promise<CountyPageDetai
       sources: card.sources ?? [],
     })),
     localOutlets: county.localOutlets ?? [],
+  }
+}
+
+/** Returns published city pages, optionally scoped to one county, in studio order. */
+export async function getCityPages(countySlug?: string): Promise<CityPageSummary[]> {
+  const filter = countySlug ? ' && countySlug==$county' : ''
+  const query = `*[_type=="cityPage" && defined(slug.current)${filter}] | order(countySlug asc, orderRank asc){
+    title,
+    "slug": slug.current,
+    countySlug,
+    intro
+  }`
+
+  const cities = await sanityQuery<CityPageSummary[]>(query, countySlug ? {county: countySlug} : undefined)
+  return cities ?? []
+}
+
+/** Returns one city page with its full issue-card content, or null. */
+export async function getCityPageBySlug(countySlug: string, citySlug: string): Promise<CityPageDetail | null> {
+  const query = `*[_type=="cityPage" && countySlug==$county && slug.current==$slug][0]{
+    title,
+    "slug": slug.current,
+    countySlug,
+    intro,
+    "heroImageUrl": heroImage.asset->url,
+    "heroImageAlt": heroImage.alt,
+    ledeTitle,
+    "ledeBody": ledeBody[]{ ... },
+    "issueCards": issueCards[]{
+      title,
+      tag,
+      "body": body[]{ ... },
+      platformSlug,
+      "sources": sources[]{label, url}
+    },
+    listeningPrompt,
+    lastUpdated
+  }`
+
+  const city = await sanityQuery<CityPageDetail>(query, {county: countySlug, slug: citySlug})
+  if (!city) {
+    return null
+  }
+
+  return {
+    ...city,
+    issueCards: (city.issueCards ?? []).map((card) => ({
+      ...card,
+      sources: card.sources ?? [],
+    })),
   }
 }

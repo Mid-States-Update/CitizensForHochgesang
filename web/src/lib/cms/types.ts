@@ -538,3 +538,22 @@ export type CountyPageDetail = CountyPageSummary & {
   localOutlets: Array<{name: string; url: string}>
   lastUpdated: string
 }
+
+/* ── City pages (/district/<county>/<city>) ──────────────────────── */
+
+export type CityPageSummary = {
+  title: string
+  slug: string
+  countySlug: string
+  intro: string
+}
+
+export type CityPageDetail = CityPageSummary & {
+  heroImageUrl?: string | null
+  heroImageAlt?: string | null
+  ledeTitle: string
+  ledeBody: PostBodyNode[]
+  issueCards: CountyIssueCard[]
+  listeningPrompt: string
+  lastUpdated: string
+}
