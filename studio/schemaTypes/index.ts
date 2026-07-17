@@ -2,6 +2,7 @@ import {aboutPriorities} from './aboutPriorities'
 import {ctaButton} from './ctaButton'
 import {event} from './event'
 import {eventsPageSettings} from './eventsPageSettings'
+import {faq} from './faq'
 import {faqPageSettings} from './faqPageSettings'
 import {fundraisingLink} from './fundraisingLink'
 import {homePageSettings} from './homePageSettings'
@@ -41,6 +42,7 @@ export const schemaTypes = [
   // Document types
   post,
   event,
+  faq,
   interactiveMap,
   mapRegionPopup,
   mediaLink,

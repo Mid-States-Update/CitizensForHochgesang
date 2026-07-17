@@ -1,21 +1,23 @@
 'use client'
 
 import {useMemo, useState, type ReactNode} from 'react'
+import {PortableText, type PortableTextComponents} from '@portabletext/react'
 import {FaChevronDown, FaChevronUp, FaSearch, FaShieldAlt, FaUsers} from 'react-icons/fa'
 
-type FaqItem = {
-  question: string
-  answer: string
-  category: 'Support' | 'Events' | 'Press' | 'Trust'
-}
+import type {FaqCategory, FaqItem} from '@/lib/cms/types'
+import {sharedBlockTypes} from '@/components/portable-block-types'
 
 type FaqAccordionProps = {
   items: FaqItem[]
 }
 
-const categories: Array<FaqItem['category'] | 'All'> = ['All', 'Support', 'Events', 'Press', 'Trust']
+const answerPTComponents: PortableTextComponents = {
+  types: {...sharedBlockTypes},
+}
 
-const categoryIcon: Record<FaqItem['category'] | 'All', ReactNode> = {
+const categories: Array<FaqCategory | 'All'> = ['All', 'Support', 'Events', 'Press', 'Trust']
+
+const categoryIcon: Record<FaqCategory | 'All', ReactNode> = {
   All: <FaUsers aria-hidden />,
   Support: <FaUsers aria-hidden />,
   Events: <FaUsers aria-hidden />,
@@ -24,9 +26,12 @@ const categoryIcon: Record<FaqItem['category'] | 'All', ReactNode> = {
 }
 
 export function FaqAccordion({items}: FaqAccordionProps) {
-  const [activeCategory, setActiveCategory] = useState<FaqItem['category'] | 'All'>('All')
+  const [activeCategory, setActiveCategory] = useState<FaqCategory | 'All'>('All')
   const [searchTerm, setSearchTerm] = useState('')
   const [openItems, setOpenItems] = useState<Record<string, boolean>>({})
+
+  // Category filter pills only make sense when the content actually uses categories
+  const hasCategories = useMemo(() => items.some((item) => item.category), [items])
 
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
@@ -39,7 +44,7 @@ export function FaqAccordion({items}: FaqAccordionProps) {
 
       return (
         matchesCategory &&
-        (item.question.toLowerCase().includes(query) || item.answer.toLowerCase().includes(query))
+        (item.question.toLowerCase().includes(query) || item.answerText.toLowerCase().includes(query))
       )
     })
   }, [activeCategory, items, searchTerm])
@@ -60,19 +65,21 @@ export function FaqAccordion({items}: FaqAccordionProps) {
   return (
     <section className="grid gap-4">
       <div className="card flex flex-col gap-4">
-        <div className="flex flex-wrap items-center gap-3">
-          {categories.map((category) => (
-            <button
-              key={category}
-              type="button"
-              onClick={() => setActiveCategory(category)}
-              className={`pill-badge ${activeCategory === category ? 'pill-badge-active' : ''}`}
-            >
-              {categoryIcon[category]}
-              <span>{category}</span>
-            </button>
-          ))}
-        </div>
+        {hasCategories ? (
+          <div className="flex flex-wrap items-center gap-3">
+            {categories.map((category) => (
+              <button
+                key={category}
+                type="button"
+                onClick={() => setActiveCategory(category)}
+                className={`pill-badge ${activeCategory === category ? 'pill-badge-active' : ''}`}
+              >
+                {categoryIcon[category]}
+                <span>{category}</span>
+              </button>
+            ))}
+          </div>
+        ) : null}
         <label className="search-field" htmlFor="faq-search">
           <FaSearch aria-hidden />
           <span className="sr-only">Search FAQs</span>
@@ -109,7 +116,15 @@ export function FaqAccordion({items}: FaqAccordionProps) {
                 <h2 className="text-lg font-semibold text-[color:var(--color-ink)]">{item.question}</h2>
                 {isOpen ? <FaChevronUp aria-hidden /> : <FaChevronDown aria-hidden />}
               </button>
-              {isOpen ? <p className="mt-3 text-sm text-[color:var(--color-muted)]">{item.answer}</p> : null}
+              {isOpen ? (
+                item.answerBody?.length ? (
+                  <div className="faq-answer mt-3 text-sm text-[color:var(--color-muted)]">
+                    <PortableText value={item.answerBody as never} components={answerPTComponents} />
+                  </div>
+                ) : (
+                  <p className="mt-3 text-sm text-[color:var(--color-muted)]">{item.answerText}</p>
+                )
+              ) : null}
             </article>
           )
         })

@@ -2,6 +2,7 @@ import {sanityQuery} from './client'
 import {
   mockAboutPriorities,
   mockEvents,
+  mockFaqs,
   mockFundraisingLinks,
   mockHomePageSettings,
   mockMediaLinks,
@@ -11,6 +12,7 @@ import {
 import type {
   AboutPriorities,
   CampaignEvent,
+  FaqItem,
   FundraisingLink,
   HomePageSettings,
   InteractiveMapData,
@@ -25,6 +27,22 @@ import type {
 } from './types'
 import {isPageEnabled} from './types'
 import {getDefaultPageVisual} from './page-visuals'
+
+/**
+ * Design-time mock content is opt-in only (NEXT_PUBLIC_CMS_MOCKS=true for
+ * local layout work). Production builds must never render mock data: empty
+ * Sanity collections stay empty, and a missing singleton document fails the
+ * build loudly instead of silently publishing placeholder content.
+ */
+function mocksEnabled(): boolean {
+  return process.env.NEXT_PUBLIC_CMS_MOCKS === 'true'
+}
+
+function missingSingleton(docType: string): Error {
+  return new Error(
+    `Sanity returned no "${docType}" document. Create it in the studio, or set NEXT_PUBLIC_CMS_MOCKS=true for local design work.`,
+  )
+}
 
 function sortByDateDesc<T extends {publishedAt?: string}>(items: T[]): T[] {
   return [...items].sort((a, b) => {
@@ -81,7 +99,20 @@ export async function getAboutPriorities(): Promise<AboutPriorities> {
 
   const about = await sanityQuery<AboutPriorities>(query, undefined, {revalidateSeconds: 0})
   if (!about) {
-    return mockAboutPriorities
+    if (mocksEnabled()) {
+      return mockAboutPriorities
+    }
+    throw missingSingleton('aboutPriorities')
+  }
+
+  const normalizedPriorities = (about.priorities ?? []).map((priority) => ({
+    ...priority,
+    body: priority.body?.length ? priority.body : [{_type: 'block' as const, children: [{_type: 'span' as const, text: priority.summary, marks: []}]}],
+    links: priority.links ?? [],
+  }))
+
+  if (!mocksEnabled()) {
+    return {...about, priorities: normalizedPriorities}
   }
 
   return {
@@ -89,13 +120,7 @@ export async function getAboutPriorities(): Promise<AboutPriorities> {
     ...about,
     bioBody: about.bioBody?.length ? about.bioBody : mockAboutPriorities.bioBody,
     values: about.values?.length ? about.values : mockAboutPriorities.values,
-    priorities: about.priorities?.length
-      ? about.priorities.map((priority) => ({
-          ...priority,
-          body: priority.body?.length ? priority.body : [{_type: 'block', children: [{_type: 'span', text: priority.summary, marks: []}]}],
-          links: priority.links ?? [],
-        }))
-      : mockAboutPriorities.priorities,
+    priorities: normalizedPriorities.length ? normalizedPriorities : mockAboutPriorities.priorities,
   }
 }
 
@@ -144,7 +169,14 @@ export async function getSiteSettings(): Promise<SiteSettings> {
 
   const settings = await sanityQuery<SiteSettings>(query, undefined, {revalidateSeconds: 0})
   if (!settings) {
-    return mockSiteSettings
+    if (mocksEnabled()) {
+      return mockSiteSettings
+    }
+    throw missingSingleton('siteSettings')
+  }
+
+  if (!mocksEnabled()) {
+    return settings
   }
 
   return {
@@ -200,12 +232,28 @@ export async function getHomePageSettings(): Promise<HomePageSettings> {
       expiredTitle,
       expiredBody[]{ ... }
     }, []),
+    "newsSectionEyebrow": coalesce(newsSectionEyebrow, "Recent news"),
+    "newsSectionHeading": coalesce(newsSectionHeading, "Latest updates"),
+    "newsSectionIntro": coalesce(newsSectionIntro, "Read the latest campaign posts and issue-focused announcements."),
+    "eventsSectionEyebrow": coalesce(eventsSectionEyebrow, "Upcoming events"),
+    "eventsSectionHeading": coalesce(eventsSectionHeading, "Meet us in the district"),
+    "eventsSectionCtaLabel": coalesce(eventsSectionCtaLabel, "View all events"),
+    "mediaSectionEyebrow": coalesce(mediaSectionEyebrow, "Recent media"),
+    "mediaSectionHeading": coalesce(mediaSectionHeading, "Watch and share"),
+    "mediaSectionCtaLabel": coalesce(mediaSectionCtaLabel, "Browse media"),
     "visuals": visuals${VISUALS_PROJECTION}
   }`
 
   const home = await sanityQuery<HomePageSettings>(query, undefined, {revalidateSeconds: 0})
   if (!home) {
-    return mockHomePageSettings
+    if (mocksEnabled()) {
+      return mockHomePageSettings
+    }
+    throw missingSingleton('homePageSettings')
+  }
+
+  if (!mocksEnabled()) {
+    return home
   }
 
   return {
@@ -252,6 +300,9 @@ export async function getAllPosts(): Promise<PostSummary[]> {
 
   const posts = await sanityQuery<PostSummary[]>(query)
   if (!posts || posts.length === 0) {
+    if (!mocksEnabled()) {
+      return []
+    }
     return sortByDateDesc(
       mockPosts.map(
         ({
@@ -334,6 +385,10 @@ export async function getPostBySlug(slug: string): Promise<PostDetail | null> {
     return post
   }
 
+  if (!mocksEnabled()) {
+    return null
+  }
+
   return mockPosts.find((item) => item.slug === slug) ?? null
 }
 
@@ -380,7 +435,7 @@ export async function getUpcomingEvents(): Promise<CampaignEvent[]> {
 
   const events = await sanityQuery<RawEvent[]>(query)
   if (!events || events.length === 0) {
-    return sortByDateAsc(mockEvents)
+    return mocksEnabled() ? sortByDateAsc(mockEvents) : []
   }
 
   return normalizeEvents(events)
@@ -392,7 +447,7 @@ export async function getAllEvents(): Promise<CampaignEvent[]> {
 
   const events = await sanityQuery<RawEvent[]>(query)
   if (!events || events.length === 0) {
-    return sortByDateAsc(mockEvents)
+    return mocksEnabled() ? sortByDateAsc(mockEvents) : []
   }
 
   return normalizeEvents(events)
@@ -412,7 +467,9 @@ export async function getMediaLinks(limit?: number): Promise<MediaLink[]> {
   const normalized =
     media && media.length > 0
       ? sortByDateDesc(media.map(({_id, ...item}) => ({id: _id, ...item})))
-      : sortByDateDesc(mockMediaLinks)
+      : mocksEnabled()
+        ? sortByDateDesc(mockMediaLinks)
+        : []
 
   return typeof limit === 'number' ? normalized.slice(0, limit) : normalized
 }
@@ -429,12 +486,55 @@ export async function getFundraisingLinks(): Promise<FundraisingLink[]> {
 
   const links = await sanityQuery<Array<Omit<FundraisingLink, 'id'> & {_id: string}>>(query)
   if (!links || links.length === 0) {
+    if (!mocksEnabled()) {
+      return []
+    }
     return [...mockFundraisingLinks].sort((a, b) => b.priority - a.priority)
   }
 
   return links
     .map(({_id, ...link}) => ({id: _id, ...link}))
     .sort((a, b) => b.priority - a.priority)
+}
+
+export type FaqPageSettings = {
+  pageEyebrow: string
+  pageTitle: string
+  pageIntro: string
+}
+
+/** Returns the /faq page heading strings, with sensible defaults. */
+export async function getFaqPageSettings(): Promise<FaqPageSettings> {
+  const query = `*[_type=="faqPageSettings"][0]{
+    "pageEyebrow": coalesce(pageEyebrow, "FAQ"),
+    "pageTitle": coalesce(pageTitle, "Frequently asked questions"),
+    "pageIntro": coalesce(pageIntro, "Quick answers for volunteers, supporters, constituents, and press.")
+  }`
+
+  const result = await sanityQuery<FaqPageSettings>(query, undefined, {revalidateSeconds: 0})
+  return (
+    result ?? {
+      pageEyebrow: 'FAQ',
+      pageTitle: 'Frequently asked questions',
+      pageIntro: 'Quick answers for volunteers, supporters, constituents, and press.',
+    }
+  )
+}
+
+/** Returns all FAQ documents ordered by their studio order (orderRank). */
+export async function getFaqs(): Promise<FaqItem[]> {
+  const query = `*[_type=="faq"] | order(orderRank asc){
+    "question": title,
+    "answerBody": body[]{ ... },
+    "answerText": pt::text(body)
+  }`
+
+  const faqs = await sanityQuery<FaqItem[]>(query)
+  if (!faqs || faqs.length === 0) {
+    return mocksEnabled() ? mockFaqs : []
+  }
+
+  return faqs
 }
 
 export interface MapRegionPopupData {

@@ -987,6 +987,14 @@
     max-width: 32rem;
   }
 
+  .faq-answer p {
+    margin: 0;
+  }
+
+  .faq-answer p + p {
+    margin-top: 0.75rem;
+  }
+
   .election-countdown-body p {
     margin: 0;
   }

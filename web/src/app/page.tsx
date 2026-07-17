@@ -329,11 +329,11 @@ export default async function Home() {
         <section className="homepage-feed-section">
           <div className="card flex flex-col gap-6">
             <div className="flex flex-col gap-3">
-              <p className="eyebrow">Recent news</p>
-              <h2 className="section-title">Latest updates</h2>
-              <p className="text-sm text-[color:var(--color-muted)]">
-                Read the latest campaign posts and issue-focused announcements.
-              </p>
+              <p className="eyebrow">{home.newsSectionEyebrow}</p>
+              <h2 className="section-title">{home.newsSectionHeading}</h2>
+              {home.newsSectionIntro ? (
+                <p className="text-sm text-[color:var(--color-muted)]">{home.newsSectionIntro}</p>
+              ) : null}
             </div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {posts.map((post) => (
@@ -361,8 +361,8 @@ export default async function Home() {
       {showEvents ? (
         <section className="homepage-feed-section">
           <div className="card flex flex-col gap-6">
-            <p className="eyebrow">Upcoming events</p>
-            <h2 className="section-title">Meet us in the district</h2>
+            <p className="eyebrow">{home.eventsSectionEyebrow}</p>
+            <h2 className="section-title">{home.eventsSectionHeading}</h2>
             <div className="grid gap-4 sm:grid-cols-2">
               {events.slice(0, 2).map((event) => (
                 <article key={event.id} className="article-card rounded-2xl border border-[color:var(--color-border)] px-4 py-4">
@@ -376,7 +376,7 @@ export default async function Home() {
             </div>
             <Link className="btn btn-outline" href="/events">
               <FaCalendarAlt aria-hidden />
-              View all events
+              {home.eventsSectionCtaLabel}
             </Link>
           </div>
         </section>
@@ -386,8 +386,8 @@ export default async function Home() {
       {showMedia ? (
         <section className="homepage-feed-section">
           <div className="card flex flex-col gap-4">
-            <p className="eyebrow">Recent media</p>
-            <h2 className="section-title">Watch and share</h2>
+            <p className="eyebrow">{home.mediaSectionEyebrow}</p>
+            <h2 className="section-title">{home.mediaSectionHeading}</h2>
             <div className="grid gap-3">
               {mediaLinks.map((item) => (
                 <CmsLink
@@ -401,7 +401,7 @@ export default async function Home() {
             </div>
             <Link className="btn btn-outline" href="/media">
               <FaVideo aria-hidden />
-              Browse media
+              {home.mediaSectionCtaLabel}
             </Link>
           </div>
         </section>

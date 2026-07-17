@@ -185,6 +185,15 @@ export type HomePageSettings = {
     ctaLabel?: string
   }>
   countdownTimers: CountdownTimer[]
+  newsSectionEyebrow?: string
+  newsSectionHeading?: string
+  newsSectionIntro?: string
+  eventsSectionEyebrow?: string
+  eventsSectionHeading?: string
+  eventsSectionCtaLabel?: string
+  mediaSectionEyebrow?: string
+  mediaSectionHeading?: string
+  mediaSectionCtaLabel?: string
   visuals?: PageVisualSettings
 }
 
@@ -380,6 +389,17 @@ export type FundraisingLink = {
   description?: string
   imageUrl?: string
   priority: number
+}
+
+export type FaqCategory = 'Support' | 'Events' | 'Press' | 'Trust'
+
+export type FaqItem = {
+  question: string
+  /** Plain-text answer used for search filtering (and rendering when answerBody is absent). */
+  answerText: string
+  /** Portable Text answer blocks — preserves bold/links when present. */
+  answerBody?: unknown[]
+  category?: FaqCategory
 }
 
 // ── Interactive Map types ──

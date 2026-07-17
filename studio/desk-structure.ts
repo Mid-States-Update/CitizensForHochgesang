@@ -39,6 +39,9 @@ export const deskStructure: StructureResolver = (S) =>
       S.listItem().title('Posts').child(S.documentTypeList('post')),
       S.listItem().title('Events').child(S.documentTypeList('event')),
       S.listItem()
+        .title('FAQs')
+        .child(S.documentTypeList('faq').defaultOrdering([{field: 'orderRank', direction: 'asc'}])),
+      S.listItem()
         .title('Media & Press')
         .child(
           S.list()

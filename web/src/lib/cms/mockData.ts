@@ -1,6 +1,7 @@
 import {
   type AboutPriorities,
   type CampaignEvent,
+  type FaqItem,
   type FundraisingLink,
   type HomePageSettings,
   type MediaLink,
@@ -197,6 +198,15 @@ export const mockHomePageSettings: HomePageSettings = {
   midCtaCopy:
     'This campaign runs on people, not PACs. Every dollar and every door knock makes a difference.',
   countdownTimers: [],
+  newsSectionEyebrow: 'Recent news',
+  newsSectionHeading: 'Latest updates',
+  newsSectionIntro: 'Read the latest campaign posts and issue-focused announcements.',
+  eventsSectionEyebrow: 'Upcoming events',
+  eventsSectionHeading: 'Meet us in the district',
+  eventsSectionCtaLabel: 'View all events',
+  mediaSectionEyebrow: 'Recent media',
+  mediaSectionHeading: 'Watch and share',
+  mediaSectionCtaLabel: 'Browse media',
 }
 
 export const mockPosts: PostDetail[] = [
@@ -490,6 +500,43 @@ export const mockMediaLinks: MediaLink[] = [
     mediaType: 'facebook',
     url: 'https://www.facebook.com/',
     publishedAt: '2026-02-07T20:00:00.000Z',
+  },
+]
+
+export const mockFaqs: FaqItem[] = [
+  {
+    question: 'How can I volunteer?',
+    answerText:
+      'Visit the Support page and use the volunteer sign-up link to join campaign outreach and event support.',
+    category: 'Support',
+  },
+  {
+    question: 'Where can I find upcoming events?',
+    answerText: 'The Events page lists upcoming public events, locations, and RSVP links.',
+    category: 'Events',
+  },
+  {
+    question: 'Where can press access campaign resources?',
+    answerText: 'The Press page includes media contact details, logo assets, and recent public updates.',
+    category: 'Press',
+  },
+  {
+    question: 'How can I verify information posted on the website?',
+    answerText:
+      'The campaign maintains source-oriented documentation in repository markdown files and updates content through Sanity Studio.',
+    category: 'Trust',
+  },
+  {
+    question: 'How do I verify or update my voter registration?',
+    answerText:
+      'Use the Indiana voter portal linked from the Support page to check registration status, find polling locations, and confirm district information.',
+    category: 'Support',
+  },
+  {
+    question: 'How can I find district boundary information?',
+    answerText:
+      'Visit the Support page for an embedded district map and official district lookup tools from Indiana resources.',
+    category: 'Events',
   },
 ]
 

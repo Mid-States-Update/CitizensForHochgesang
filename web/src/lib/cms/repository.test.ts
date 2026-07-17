@@ -1,4 +1,4 @@
-import { vi, describe, it, expect, beforeEach } from 'vitest'
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 
 // Replace the real sanityQuery (which calls the Sanity HTTP API) with a
 // controllable mock so tests run offline without network calls.
@@ -43,6 +43,13 @@ const mockQuery = vi.mocked(sanityQuery)
 beforeEach(() => {
   // Clear call history and return-value queue so tests don't interfere with each other
   mockQuery.mockReset()
+  // This suite exercises the design-mode mock fallbacks, which are opt-in.
+  // Default (production) behavior is covered by repository.mock-gating.test.ts.
+  vi.stubEnv('NEXT_PUBLIC_CMS_MOCKS', 'true')
+})
+
+afterEach(() => {
+  vi.unstubAllEnvs()
 })
 
 // ---------------------------------------------------------------------------
