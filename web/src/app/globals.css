@@ -2682,3 +2682,27 @@
   stroke: var(--color-ink);
   stroke-width: 3;
 }
+.map2-backdrop {
+  fill: transparent;
+  cursor: zoom-out;
+}
+.map2-dim {
+  opacity: 0.25;
+  transition: opacity 450ms ease;
+}
+.map2-city path {
+  fill: var(--color-highlight);
+  stroke: var(--color-accent);
+  stroke-width: 0.5;
+  opacity: 0.85;
+  pointer-events: none;
+}
+.map2-city-cdp path {
+  fill: none;
+  stroke-dasharray: 2 2;
+}
+.map2-city-label {
+  fill: var(--color-ink);
+  text-anchor: middle;
+  pointer-events: auto;
+}

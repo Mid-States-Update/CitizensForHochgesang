@@ -1,9 +1,11 @@
 'use client'
 
-import {useMemo, useState} from 'react'
+import {useEffect, useMemo, useState} from 'react'
 import Link from 'next/link'
 
 import district48Data from './indiana-district-map-coordinates'
+import {district48Cities} from './district48-cities'
+import {canonicalGeoTag} from '../lib/geo-tags'
 import {
   buildMapModel,
   newsHrefForPlace,
@@ -20,7 +22,7 @@ import type {CityPageSummary, CountyPageSummary} from '../lib/cms/types'
 
 const MAP_WIDTH = 760
 const PAD = 0.03
-const ZOOM_PAD = 0.12
+const ZOOM_PAD = 0.08
 
 type View = {level: 'district'} | {level: 'county'; slug: string}
 
@@ -96,6 +98,17 @@ export function DistrictMapV2({
 
   const focused = zoomedShape?.region ?? selected
 
+  // Unzoom is always one gesture away: Escape, the backdrop, the Back
+  // button, or clicking the zoomed county again.
+  useEffect(() => {
+    if (view.level !== 'county') return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setView({level: 'district'})
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [view.level])
+
   return (
     <div className="map2">
       {view.level === 'county' && zoomedShape ? (
@@ -113,6 +126,18 @@ export function DistrictMapV2({
         aria-label="Senate District 48 county map"
         className="map2-svg"
       >
+        {view.level === 'county' ? (
+          <rect
+            x={0}
+            y={0}
+            width={viewport.width}
+            height={viewport.height}
+            className="map2-backdrop"
+            aria-label="Zoom back out to the district"
+            role="button"
+            onClick={() => setView({level: 'district'})}
+          />
+        ) : null}
         <g
           className="map2-zoom"
           style={{
@@ -126,6 +151,7 @@ export function DistrictMapV2({
               'map2-county',
               region.status === 'live' ? 'map2-live' : 'map2-soon',
               isSelected ? 'map2-selected' : '',
+              view.level === 'county' && !isZoomed ? 'map2-dim' : '',
             ].join(' ')
             return (
               <g
@@ -162,7 +188,7 @@ export function DistrictMapV2({
                     }
                   }}
                 />
-                {!isZoomed ? (
+                {view.level === 'district' ? (
                   /* Plain SVG <a>, not Next Link: HTML components inside the
                    * SVG namespace break hydration and kill every handler. */
                   <a
@@ -179,28 +205,42 @@ export function DistrictMapV2({
             )
           })}
           {zoomedShape
-            ? zoomedShape.geo.townships.map((township) => {
-                const rings = township.rings.map((r) => ({
-                  points: r.coordinates as Array<[number, number]>,
-                }))
-                const [tx, ty] = project(
-                  polygonCentroid(rings),
-                  bbox,
-                  viewport
-                )
-                return (
-                  <g key={township.name} className="map2-township">
-                    <path d={ringsToPath(rings, bbox, viewport)} />
+            ? district48Cities
+                .filter((city) => city.county === zoomedShape.region.name)
+                .map((city) => {
+                  const rings = city.rings.map((points) => ({points}))
+                  const [cx, cy] = project(polygonCentroid(rings), bbox, viewport)
+                  const newsPlace = canonicalGeoTag(city.name)
+                  const label = (
                     <text
-                      x={tx}
-                      y={ty}
+                      x={cx}
+                      y={cy}
+                      className="map2-city-label"
                       style={{fontSize: `${13 / zoom.scale}px`}}
                     >
-                      {township.name.replace(/ Township$/, '')}
+                      {city.name}
                     </text>
-                  </g>
-                )
-              })
+                  )
+                  return (
+                    <g
+                      key={city.name}
+                      className={`map2-city ${city.kind === 'cdp' ? 'map2-city-cdp' : ''}`}
+                    >
+                      <path d={ringsToPath(rings, bbox, viewport)} />
+                      {newsPlace ? (
+                        <a
+                          href={newsHrefForPlace(newsPlace)}
+                          aria-label={`${city.name} news`}
+                          className="map2-label-link"
+                        >
+                          {label}
+                        </a>
+                      ) : (
+                        label
+                      )}
+                    </g>
+                  )
+                })
             : null}
         </g>
       </svg>
