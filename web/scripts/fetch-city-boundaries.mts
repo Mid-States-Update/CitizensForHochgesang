@@ -8,8 +8,8 @@ import district48Data from '../src/components/indiana-district-map-coordinates'
 type LonLat = [number, number]
 
 const SERVICES = [
-  'https://tigerweb.geo.census.gov/arcgis/rest/services/Generalized_ACS2023/Places_CouSub_ConCity/MapServer',
   'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Places_CouSub_ConCity_SubMCD/MapServer',
+  'https://tigerweb.geo.census.gov/arcgis/rest/services/Generalized_ACS2023/Places_CouSub_ConCity/MapServer',
 ]
 
 const bbox = district48Data.district.bbox
@@ -49,12 +49,11 @@ function centroidOf(rings: LonLat[][]): LonLat {
   return [sx / n, sy / n]
 }
 
-function thin(ring: LonLat[], maxPoints = 180): LonLat[] {
-  const rounded = ring.map(([x, y]): LonLat => [Number(x.toFixed(5)), Number(y.toFixed(5))])
-  if (rounded.length <= maxPoints) return rounded
-  const step = Math.ceil(rounded.length / maxPoints)
-  const out = rounded.filter((_, i) => i % step === 0)
-  return out
+/* Full-fidelity rings: round to 5 decimals (~1 m) but never drop points.
+ * Earlier point-capped versions made town borders visibly lumpy next to
+ * the untrimmed township lines. */
+function roundRing(ring: LonLat[]): LonLat[] {
+  return ring.map(([x, y]): LonLat => [Number(x.toFixed(5)), Number(y.toFixed(5))])
 }
 
 async function fetchJson(url: string) {
@@ -90,7 +89,7 @@ async function main() {
           if (!name || !geom) continue
           const polys: LonLat[][][] =
             geom.type === 'Polygon' ? [geom.coordinates] : geom.type === 'MultiPolygon' ? geom.coordinates : []
-          const rings = polys.flat().map((r: LonLat[]) => thin(r))
+          const rings = polys.flat().map((r: LonLat[]) => roundRing(r))
           if (rings.length === 0) continue
           const county = countyFor(centroidOf(rings))
           if (!county) continue
