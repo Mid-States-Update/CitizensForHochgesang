@@ -2559,20 +2559,6 @@
 .map2-live .map2-shape {
   fill: var(--color-highlight);
 }
-.map2-live:hover .map2-shape,
-.map2-live:focus-visible .map2-shape,
-.map2-selected .map2-shape {
-  fill: var(--color-accent);
-}
-.map2-live:hover .map2-label,
-.map2-live:focus-visible .map2-label,
-.map2-selected .map2-label {
-  fill: var(--color-accent-contrast);
-}
-.map2-county:focus-visible .map2-shape {
-  stroke: var(--color-ink);
-  stroke-width: 3;
-}
 .map2-soon {
   cursor: default;
 }
@@ -2589,6 +2575,33 @@
 .map2-live .map2-label {
   fill: var(--color-ink);
   font-weight: 600;
+}
+/* Hover/selection highlights, per state, declared last so they win.
+ * Live counties invert onto the accent; coming-soon counties brighten
+ * in place so the name highlights instead of vanishing. */
+.map2-soon:hover .map2-shape,
+.map2-soon:focus-visible .map2-shape,
+.map2-soon.map2-selected .map2-shape {
+  fill: var(--color-highlight);
+}
+.map2-soon:hover .map2-label,
+.map2-soon:focus-visible .map2-label,
+.map2-soon.map2-selected .map2-label {
+  fill: var(--color-ink);
+}
+.map2-live:hover .map2-shape,
+.map2-live:focus-visible .map2-shape,
+.map2-live.map2-selected .map2-shape {
+  fill: var(--color-accent);
+}
+.map2-live:hover .map2-label,
+.map2-live:focus-visible .map2-label,
+.map2-live.map2-selected .map2-label {
+  fill: var(--color-accent-contrast);
+}
+.map2-county:focus-visible .map2-shape {
+  stroke: var(--color-ink);
+  stroke-width: 3;
 }
 .map2-panel {
   border: 1px solid var(--color-border);
