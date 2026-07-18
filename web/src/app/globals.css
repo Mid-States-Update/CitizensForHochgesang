@@ -2534,3 +2534,90 @@
     transition: none !important;
   }
 }
+
+/* ── District map v2 (test module; rendered only on /map-preview) ── */
+.map2 {
+  display: grid;
+  gap: 1.25rem;
+  max-width: 640px;
+  margin-inline: auto;
+}
+.map2-svg {
+  width: 100%;
+  height: auto;
+}
+.map2-county {
+  cursor: pointer;
+  outline: none;
+}
+.map2-shape {
+  fill: var(--color-surface);
+  stroke: var(--color-border);
+  stroke-width: 2;
+  transition: fill var(--motion-link-duration) ease;
+}
+.map2-live .map2-shape {
+  fill: var(--color-highlight);
+}
+.map2-live:hover .map2-shape,
+.map2-live:focus-visible .map2-shape,
+.map2-selected .map2-shape {
+  fill: var(--color-accent);
+}
+.map2-live:hover .map2-label,
+.map2-live:focus-visible .map2-label,
+.map2-selected .map2-label {
+  fill: var(--color-accent-contrast);
+}
+.map2-county:focus-visible .map2-shape {
+  stroke: var(--color-ink);
+  stroke-width: 3;
+}
+.map2-soon {
+  cursor: default;
+}
+.map2-soon .map2-shape {
+  fill: var(--color-surface);
+  stroke-dasharray: 6 4;
+}
+.map2-label {
+  fill: var(--color-muted);
+  font-size: 26px;
+  text-anchor: middle;
+  pointer-events: none;
+}
+.map2-live .map2-label {
+  fill: var(--color-ink);
+  font-weight: 600;
+}
+.map2-panel {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  padding: 1rem 1.25rem;
+  min-height: 7rem;
+}
+.map2-panel-title {
+  margin: 0 0 0.5rem;
+}
+.map2-panel-hint {
+  color: var(--color-muted);
+}
+.map2-cities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+.map2-preview-page {
+  max-width: 720px;
+  margin-inline: auto;
+  padding: 2rem 1rem 4rem;
+}
+@media (prefers-reduced-motion: reduce) {
+  .map2-shape {
+    transition: none;
+  }
+}

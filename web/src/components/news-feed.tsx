@@ -7,6 +7,7 @@ import {useEffect, useMemo, useRef, useState} from 'react'
 import {formatDate} from '@/lib/cms/format'
 import {getSanityImageUrl} from '@/lib/cms/image-url'
 import type {PostSummary} from '@/lib/cms/types'
+import {geoTagsIn} from '@/lib/geo-tags'
 
 const RATIO_DIMENSIONS: Record<string, {width: number; height: number; className: string}> = {
   '16:9': {width: 1600, height: 900, className: 'aspect-[16/9]'},
@@ -106,6 +107,12 @@ export function NewsFeed({posts}: NewsFeedProps) {
 
     return tagCounts.filter(({tag}) => tag.toLowerCase().includes(query))
   }, [tagCounts, tagQuery])
+
+  const geoFilters = useMemo(
+    () => geoTagsIn(posts.flatMap((post) => post.tags)),
+    [posts]
+  )
+  const hasGeoFilters = geoFilters.counties.length > 0 || geoFilters.cities.length > 0
 
   const preparedPosts = useMemo(
     () =>
@@ -224,6 +231,28 @@ export function NewsFeed({posts}: NewsFeedProps) {
           </select>
         </label>
       </div>
+
+      {hasGeoFilters ? (
+        <div
+          className="flex flex-wrap items-center gap-2 rounded-2xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)]/70 p-4"
+          role="group"
+          aria-label="Filter news by county or town"
+        >
+          <span className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--color-muted)]">
+            Filter by place
+          </span>
+          {[...geoFilters.counties, ...geoFilters.cities].map((place) => (
+            <button
+              key={place}
+              type="button"
+              onClick={() => applyTagFilter(selectedTag === place ? null : place)}
+              className={`pill-badge ${selectedTag === place ? 'pill-badge-active' : ''}`}
+            >
+              <span>{place}</span>
+            </button>
+          ))}
+        </div>
+      ) : null}
 
       {visiblePosts.map((post) => {
         const layoutClass = LAYOUT_CLASSNAMES[post.layout] ?? LAYOUT_CLASSNAMES.stacked

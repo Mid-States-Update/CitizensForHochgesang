@@ -1,4 +1,5 @@
 import {CmsLink} from '@/components/cms-link'
+import {MediaLinkGrid} from '@/components/media-link-grid'
 import {PageEffects} from '@/components/page-effects'
 import {formatDate} from '@/lib/cms/format'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
@@ -8,17 +9,6 @@ import Image from 'next/image'
 export const metadata = {
   title: 'Media & Press',
   description: 'Campaign media coverage, press resources, and direct contact details.',
-}
-
-const MEDIA_TYPE_LABELS: Record<string, string> = {
-  youtube: 'YouTube',
-  facebook: 'Facebook',
-  audio: 'Audio',
-  other: 'Press / News',
-}
-
-function getTypeLabel(mediaType: string): string {
-  return MEDIA_TYPE_LABELS[mediaType] ?? 'Media'
 }
 
 export default async function MediaPage() {
@@ -106,49 +96,7 @@ export default async function MediaPage() {
         </article>
       </section>
 
-      {mediaLinks.length > 0 ? (
-        <section className="grid gap-6 md:grid-cols-2">
-          <h2 className="section-title md:col-span-2">Interviews, videos, and social updates</h2>
-          {mediaLinks.map((item) => (
-            <article key={item.id} className="card article-card flex flex-col gap-4">
-              {item.thumbnailUrl ? (
-                <div className="card-media">
-                  <Image
-                    src={item.thumbnailUrl}
-                    alt={`${item.title} thumbnail`}
-                    width={1200}
-                    height={630}
-                    className="h-52 w-full object-cover"
-                    unoptimized
-                  />
-                </div>
-              ) : null}
-              <div className="flex flex-wrap items-center gap-3">
-                <p className="article-meta text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--color-muted)]">
-                  {getTypeLabel(item.mediaType)}
-                </p>
-                {item.highlight ? (
-                  <span className="pill-badge pill-badge-active text-xs">
-                    ★ {item.highlightNote?.trim() || 'Featured'}
-                  </span>
-                ) : null}
-              </div>
-              <h2 className="article-title text-xl font-semibold text-[color:var(--color-ink)]">{item.title}</h2>
-              {item.publishedAt ? (
-                <p className="text-sm text-[color:var(--color-muted)]">Published {formatDate(item.publishedAt)}</p>
-              ) : null}
-              {item.description ? (
-                <p className="text-sm text-[color:var(--color-muted)]">{item.description}</p>
-              ) : null}
-              <div>
-                <CmsLink className="article-cta link-pill link-pill-media" href={item.url}>
-                  Open media
-                </CmsLink>
-              </div>
-            </article>
-          ))}
-        </section>
-      ) : null}
+      {mediaLinks.length > 0 ? <MediaLinkGrid mediaLinks={mediaLinks} /> : null}
 
       <section className="grid gap-6 lg:grid-cols-2">
         <article className="card article-card flex flex-col gap-4">

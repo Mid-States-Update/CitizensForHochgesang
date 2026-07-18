@@ -383,6 +383,7 @@ export type MediaLink = {
   thumbnailUrl?: string
   highlight?: boolean
   highlightNote?: string
+  geoTags?: string[]
 }
 
 export type FundraisingLink = {
