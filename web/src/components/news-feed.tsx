@@ -61,11 +61,19 @@ function getBodyPreview(post: PostSummary): string | null {
 
 export function NewsFeed({posts}: NewsFeedProps) {
   const searchParams = useSearchParams()
-  // ?place=Dubois%20County (from the district map) preselects that geo filter;
-  // anything unrecognized is ignored. Sort stays on the default, newest first.
-  const [selectedTag, setSelectedTag] = useState<string | null>(() =>
-    canonicalGeoTag(searchParams.get('place') ?? '')
-  )
+  // ?place=Dubois%20County (from the district map) preselects that geo filter.
+  // Canonical places always work; other names count only when a post actually
+  // carries that tag. Junk is ignored. Sort stays on the default, newest first.
+  const [selectedTag, setSelectedTag] = useState<string | null>(() => {
+    const place = searchParams.get('place')?.trim() ?? ''
+    if (!place) return null
+    const canonical = canonicalGeoTag(place)
+    if (canonical) return canonical
+    const match = posts
+      .flatMap((post) => post.tags)
+      .find((tag) => tag.toLowerCase() === place.toLowerCase())
+    return match ?? null
+  })
   const [tagQuery, setTagQuery] = useState('')
   const [sortMode, setSortMode] = useState<SortMode>('newest')
   const [visibleCount, setVisibleCount] = useState(6)

@@ -3,6 +3,7 @@ import {describe, expect, it} from 'vitest'
 import {
   buildMapModel,
   newsHrefForPlace,
+  planCityLabels,
   polygonCentroid,
   project,
   projectedRect,
@@ -124,6 +125,37 @@ describe('zoomTransformFor', () => {
   it('never scales below 1', () => {
     const t = zoomTransformFor({x: 0, y: 0, width: 400, height: 400}, {width: 200, height: 100})
     expect(t.scale).toBe(1)
+  })
+})
+
+describe('planCityLabels', () => {
+  const mk = (name: string, county: string, pop: number) => ({name, county, pop})
+  const cities = [
+    mk('Jasper', 'Dubois', 17000),
+    mk('Huntingburg', 'Dubois', 6500),
+    mk('Ferdinand', 'Dubois', 2300),
+    mk('Holland', 'Dubois', 650),
+    mk('Birdseye', 'Dubois', 400),
+    mk('Ireland', 'Dubois', 500),
+    mk('Duff', 'Dubois', 0),
+  ]
+
+  it('labels the top-5 by population per county, unclickable without news', () => {
+    const plan = planCityLabels(cities, [])
+    expect(plan.get('Jasper|Dubois')).toEqual({labeled: true, clickable: false})
+    expect(plan.get('Ireland|Dubois')).toEqual({labeled: true, clickable: false})
+    expect(plan.get('Birdseye|Dubois')).toEqual({labeled: false, clickable: false})
+    expect(plan.get('Duff|Dubois')).toEqual({labeled: false, clickable: false})
+  })
+
+  it('a place with news is always labeled and clickable, even when small', () => {
+    const plan = planCityLabels(cities, ['Birdseye'])
+    expect(plan.get('Birdseye|Dubois')).toEqual({labeled: true, clickable: true})
+  })
+
+  it('matches news places across Saint/St. spelling', () => {
+    const plan = planCityLabels([mk('Saint Anthony', 'Dubois', 100)], ['St. Anthony'])
+    expect(plan.get('Saint Anthony|Dubois')).toEqual({labeled: true, clickable: true})
   })
 })
 

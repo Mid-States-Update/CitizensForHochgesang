@@ -166,6 +166,37 @@ export function zoomTransformFor(rect: Rect, viewport: Viewport): ZoomTransform 
   return {scale, tx, ty}
 }
 
+function normalizePlace(name: string): string {
+  return name.toLowerCase().replace(/^saint /, 'st. ').trim()
+}
+
+export type CityLabelPlan = {labeled: boolean; clickable: boolean}
+
+/* Label a city only when it has news coverage or ranks in its county's
+ * top-5 by population; only news-bearing places are clickable. */
+export function planCityLabels(
+  cities: Array<{name: string; county: string; pop: number}>,
+  newsPlaces: string[],
+  topN = 5
+): Map<string, CityLabelPlan> {
+  const news = new Set(newsPlaces.map(normalizePlace))
+  const topByCounty = new Map<string, Set<string>>()
+  for (const county of new Set(cities.map((c) => c.county))) {
+    const top = cities
+      .filter((c) => c.county === county && c.pop > 0)
+      .sort((a, b) => b.pop - a.pop || a.name.localeCompare(b.name))
+      .slice(0, topN)
+    topByCounty.set(county, new Set(top.map((c) => c.name)))
+  }
+  const plan = new Map<string, CityLabelPlan>()
+  for (const city of cities) {
+    const clickable = news.has(normalizePlace(city.name))
+    const labeled = clickable || (topByCounty.get(city.county)?.has(city.name) ?? false)
+    plan.set(`${city.name}|${city.county}`, {labeled, clickable})
+  }
+  return plan
+}
+
 export function newsHrefForPlace(place: string): string {
   return `/news?place=${encodeURIComponent(place)}`
 }

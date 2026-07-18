@@ -2691,10 +2691,9 @@
   transition: opacity 450ms ease;
 }
 .map2-city path {
-  fill: var(--color-highlight);
+  fill: none;
   stroke: var(--color-accent);
-  stroke-width: 0.5;
-  opacity: 0.85;
+  stroke-width: 1;
   pointer-events: none;
 }
 .map2-city-cdp path {

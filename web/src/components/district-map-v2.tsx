@@ -5,10 +5,10 @@ import Link from 'next/link'
 
 import district48Data from './indiana-district-map-coordinates'
 import {district48Cities} from './district48-cities'
-import {canonicalGeoTag} from '../lib/geo-tags'
 import {
   buildMapModel,
   newsHrefForPlace,
+  planCityLabels,
   polygonCentroid,
   project,
   projectedRect,
@@ -34,11 +34,19 @@ type View = {level: 'district'} | {level: 'county'; slug: string}
 export function DistrictMapV2({
   counties,
   cities,
+  newsPlaces = [],
 }: {
   counties: CountyPageSummary[]
   cities: CityPageSummary[]
+  /** Canonical place names that have at least one news post; drives which
+   * city labels appear and which are clickable. */
+  newsPlaces?: string[]
 }) {
   const model = useMemo(() => buildMapModel({counties, cities}), [counties, cities])
+  const labelPlan = useMemo(
+    () => planCityLabels(district48Cities, newsPlaces),
+    [newsPlaces]
+  )
   const [selected, setSelected] = useState<MapRegionModel | null>(null)
   const [view, setView] = useState<View>({level: 'district'})
 
@@ -210,8 +218,8 @@ export function DistrictMapV2({
                 .map((city) => {
                   const rings = city.rings.map((points) => ({points}))
                   const [cx, cy] = project(polygonCentroid(rings), bbox, viewport)
-                  const newsPlace = canonicalGeoTag(city.name)
-                  const label = (
+                  const plan = labelPlan.get(`${city.name}|${city.county}`)
+                  const label = plan?.labeled ? (
                     <text
                       x={cx}
                       y={cy}
@@ -220,16 +228,16 @@ export function DistrictMapV2({
                     >
                       {city.name}
                     </text>
-                  )
+                  ) : null
                   return (
                     <g
                       key={city.name}
                       className={`map2-city ${city.kind === 'cdp' ? 'map2-city-cdp' : ''}`}
                     >
                       <path d={ringsToPath(rings, bbox, viewport)} />
-                      {newsPlace ? (
+                      {label && plan?.clickable ? (
                         <a
-                          href={newsHrefForPlace(newsPlace)}
+                          href={newsHrefForPlace(city.name)}
                           aria-label={`${city.name} news`}
                           className="map2-label-link"
                         >
