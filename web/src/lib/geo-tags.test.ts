@@ -14,6 +14,21 @@ describe('isGeoTag', () => {
     expect(isGeoTag('Tell City')).toBe(true)
     expect(isGeoTag('Indianapolis')).toBe(false)
   })
+
+  it('recognizes every place on the district map, including small CDPs', () => {
+    expect(isGeoTag('Celestine')).toBe(true)
+    expect(isGeoTag('Schnellville')).toBe(true)
+    expect(isGeoTag('Leopold')).toBe(true)
+    expect(isGeoTag('Mariah Hill')).toBe(true)
+  })
+
+  it('distinguishes the town of Dubois from Dubois County', () => {
+    expect(canonicalGeoTag('dubois')).toBe('Dubois')
+    expect(canonicalGeoTag('dubois county')).toBe('Dubois County')
+    const result = geoTagsIn(['Dubois'])
+    expect(result.counties).toEqual([])
+    expect(result.cities).toEqual(['Dubois'])
+  })
 })
 
 describe('canonicalGeoTag', () => {
