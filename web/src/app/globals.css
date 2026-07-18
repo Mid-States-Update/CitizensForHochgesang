@@ -599,6 +599,24 @@
     @apply md:grid-cols-[1.05fr_0.95fr] md:items-start;
   }
 
+  /* Mobile: the portrait leads; the focus list reads below it. */
+  @media (max-width: 767px) {
+    .campaign-hero .campaign-hero-media {
+      order: -1;
+    }
+  }
+
+  .campaign-focus-link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .campaign-focus-link:hover,
+  .campaign-focus-link:focus-visible {
+    color: var(--color-accent);
+    text-decoration: underline;
+  }
+
   .campaign-hero-text {
     @apply flex flex-col gap-6;
   }
@@ -1482,39 +1500,8 @@
     }
   }
 
-  /* ── Mobile quick-action bar (Donate / Volunteer) ── */
-  .mobile-action-bar {
-    position: fixed;
-    inset-inline: 0;
-    bottom: 0;
-    z-index: 80;
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: 1fr;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem calc(0.5rem + env(safe-area-inset-bottom));
-    border-top: 1px solid var(--color-border);
-    background: color-mix(in srgb, var(--color-surface) 90%, transparent);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-  }
-
-  .mobile-action-btn {
-    justify-content: center;
-  }
-
-  @media (min-width: 768px) {
-    .mobile-action-bar {
-      display: none;
-    }
-  }
-
-  /* Keep the footer reachable above the fixed bar on phones. */
-  @media (max-width: 767px) {
-    body {
-      padding-bottom: calc(3.75rem + env(safe-area-inset-bottom));
-    }
-  }
+  /* (The mobile Donate / Menu / Join Us bar lives in .site-header-controls;
+   * a second bottom bar was removed after it covered the menu button.) */
 
   .nav-link {
     @apply inline-flex items-center rounded-full px-3 py-2 text-[color:var(--color-muted)] transition;
@@ -1898,14 +1885,35 @@
     color: color-mix(in srgb, var(--color-ink) 86%, var(--color-accent));
   }
 
-  .tag-rail-scroll {
-    @apply w-full;
+  /* ── Chip tracks: every tag/place list is ONE scrollable line by default,
+   * on every width; an optional toggle expands it to a wrapped grid. ── */
+  .chip-track {
+    display: flex;
+    flex: 1 1 0%;
+    min-width: 0;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-block: 2px;
+    scrollbar-width: none;
   }
 
-  .tag-rail-grid {
-    @apply flex flex-wrap gap-2 overflow-hidden;
-    max-height: calc(2 * 2rem + 0.5rem);
-    align-content: flex-start;
+  .chip-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .chip-track > * {
+    flex-shrink: 0;
+  }
+
+  .chip-track-expanded {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+
+  .chip-toggle {
+    flex-shrink: 0;
   }
 
   .tag-search-shell {

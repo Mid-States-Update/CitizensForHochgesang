@@ -3,7 +3,6 @@ import { JetBrains_Mono, Newsreader, Source_Sans_3 } from "next/font/google";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import { Breadcrumbs } from "@/components/breadcrumbs";
-import { MobileActionBar } from "@/components/mobile-action-bar";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { SiteNav } from "@/components/site-nav";
@@ -127,7 +126,6 @@ export default async function RootLayout({
           </div>
           <SiteFooter settings={settings} />
         </div>
-        <MobileActionBar donateUrl={settings.donateUrl} volunteerUrl={settings.volunteerUrl} />
         <Analytics />
       </body>
     </html>

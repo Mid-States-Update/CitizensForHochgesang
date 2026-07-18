@@ -75,6 +75,8 @@ export function NewsFeed({posts}: NewsFeedProps) {
     return match ?? null
   })
   const [tagQuery, setTagQuery] = useState('')
+  const [tagsExpanded, setTagsExpanded] = useState(false)
+  const [placesExpanded, setPlacesExpanded] = useState(false)
   const [sortMode, setSortMode] = useState<SortMode>('newest')
   const [visibleCount, setVisibleCount] = useState(6)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
@@ -207,29 +209,39 @@ export function NewsFeed({posts}: NewsFeedProps) {
               className="tag-search-input"
             />
           </label>
-          <div className="tag-rail-scroll" role="group" aria-label="News tags sorted by number of posts">
-            <div className="tag-rail-grid">
+          <div
+            className={`chip-track ${tagsExpanded ? 'chip-track-expanded' : ''}`}
+            role="group"
+            aria-label="News tags sorted by number of posts"
+          >
+            <button
+              type="button"
+              onClick={() => applyTagFilter(null)}
+              className={`pill-badge ${selectedTag === null ? 'pill-badge-active' : ''}`}
+            >
+              <span>All</span>
+              {posts.length >= 2 ? <span className="pill-badge-count">{posts.length}</span> : null}
+            </button>
+            {filteredTagCounts.map(({tag, count}) => (
               <button
+                key={tag}
                 type="button"
-                onClick={() => applyTagFilter(null)}
-                className={`pill-badge ${selectedTag === null ? 'pill-badge-active' : ''}`}
+                onClick={() => applyTagFilter(tag)}
+                className={`pill-badge ${selectedTag === tag ? 'pill-badge-active' : ''}`}
               >
-                <span>All</span>
-                {posts.length >= 2 ? <span className="pill-badge-count">{posts.length}</span> : null}
+                <span>{tag}</span>
+                {count >= 2 ? <span className="pill-badge-count">{count}</span> : null}
               </button>
-              {filteredTagCounts.map(({tag, count}) => (
-                <button
-                  key={tag}
-                  type="button"
-                  onClick={() => applyTagFilter(tag)}
-                  className={`pill-badge ${selectedTag === tag ? 'pill-badge-active' : ''}`}
-                >
-                  <span>{tag}</span>
-                  {count >= 2 ? <span className="pill-badge-count">{count}</span> : null}
-                </button>
-              ))}
-            </div>
+            ))}
           </div>
+          <button
+            type="button"
+            className="pill-badge chip-toggle"
+            aria-expanded={tagsExpanded}
+            onClick={() => setTagsExpanded((value) => !value)}
+          >
+            {tagsExpanded ? 'Less' : 'More'}
+          </button>
         </div>
 
         <label className="flex shrink-0 items-center gap-2 text-sm text-[color:var(--color-muted)]">
@@ -247,24 +259,34 @@ export function NewsFeed({posts}: NewsFeedProps) {
       </div>
 
       {hasGeoFilters ? (
-        <div
-          className="flex flex-wrap items-center gap-2 rounded-2xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)]/70 p-4"
-          role="group"
-          aria-label="Filter news by county or town"
-        >
+        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)]/70 p-4">
           <span className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--color-muted)]">
             Filter by place
           </span>
-          {[...geoFilters.counties, ...geoFilters.cities].map((place) => (
-            <button
-              key={place}
-              type="button"
-              onClick={() => applyTagFilter(selectedTag === place ? null : place)}
-              className={`pill-badge ${selectedTag === place ? 'pill-badge-active' : ''}`}
-            >
-              <span>{place}</span>
-            </button>
-          ))}
+          <div
+            className={`chip-track ${placesExpanded ? 'chip-track-expanded' : ''}`}
+            role="group"
+            aria-label="Filter news by county or town"
+          >
+            {[...geoFilters.counties, ...geoFilters.cities].map((place) => (
+              <button
+                key={place}
+                type="button"
+                onClick={() => applyTagFilter(selectedTag === place ? null : place)}
+                className={`pill-badge ${selectedTag === place ? 'pill-badge-active' : ''}`}
+              >
+                <span>{place}</span>
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            className="pill-badge chip-toggle"
+            aria-expanded={placesExpanded}
+            onClick={() => setPlacesExpanded((value) => !value)}
+          >
+            {placesExpanded ? 'Less' : 'More'}
+          </button>
         </div>
       ) : null}
 
@@ -316,7 +338,7 @@ export function NewsFeed({posts}: NewsFeedProps) {
                 </p>
 
                 {post.tags.length > 0 ? (
-                  <ul className="flex flex-wrap gap-2">
+                  <ul className="chip-track">
                     {post.tags.map((tag) => (
                       <li key={`${post.slug}-${tag}`}>
                         <button

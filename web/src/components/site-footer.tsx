@@ -1,21 +1,8 @@
 import {CmsLink} from '@/components/cms-link'
+import {DEFAULT_NAV_ITEMS, normalizeNavItems} from '@/components/site-nav-items'
 import {filterNavByVisibility} from '@/components/site-nav-visibility'
-import type {IconName, SiteSettings} from '@/lib/cms/types'
+import type {SiteSettings} from '@/lib/cms/types'
 import {FaDonate, FaFacebook, FaGlobe, FaHandsHelping, FaYoutube} from 'react-icons/fa'
-
-type NavItem = {
-  href: string
-  label: string
-  icon?: IconName
-}
-
-const defaultNavItems: NavItem[] = [
-  {href: '/news', label: 'News'},
-  {href: '/events', label: 'Events'},
-  {href: '/platform', label: 'About & Priorities'},
-  {href: '/media', label: 'Media & Press'},
-  {href: '/support', label: 'Support'},
-]
 
 type SiteFooterProps = {
   settings: SiteSettings
@@ -23,11 +10,13 @@ type SiteFooterProps = {
 
 export function SiteFooter({settings}: SiteFooterProps) {
   const contactHref = settings.contactEmail ? `mailto:${settings.contactEmail}` : '/support'
+  // Same source + normalize pipeline as the header menu, so Explore always
+  // matches what the window's menu shows.
   const sourceItems =
     settings.headerNavItems && settings.headerNavItems.length > 0
       ? settings.headerNavItems
-      : defaultNavItems
-  const exploreItems = filterNavByVisibility(sourceItems, settings.pageVisibility)
+      : DEFAULT_NAV_ITEMS
+  const exploreItems = filterNavByVisibility(normalizeNavItems(sourceItems), settings.pageVisibility)
 
   return (
     <footer className="border-t border-[color:var(--color-border)] bg-[color:var(--color-surface)]">

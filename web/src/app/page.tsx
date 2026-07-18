@@ -216,7 +216,11 @@ export default async function Home() {
               {campaignFocusItems.length > 0 ? (
                 <ul className="campaign-focus-list campaign-hero-focus">
                   {campaignFocusItems.map((item) => (
-                    <li key={item}>{item}</li>
+                    <li key={item}>
+                      <Link href="/platform" className="campaign-focus-link">
+                        {item}
+                      </Link>
+                    </li>
                   ))}
                 </ul>
               ) : null}

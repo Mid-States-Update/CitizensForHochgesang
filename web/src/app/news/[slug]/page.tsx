@@ -82,7 +82,7 @@ export default async function PostPage({params}: PostPageProps) {
           ) : null}
           {post.excerpt ? <p className="text-base text-[color:var(--color-muted)]">{post.excerpt}</p> : null}
           {post.tags.length > 0 ? (
-            <ul className="flex flex-wrap gap-2">
+            <ul className="chip-track">
               {post.tags.map((tag) => (
                 <li
                   key={`${post.slug}-${tag}`}

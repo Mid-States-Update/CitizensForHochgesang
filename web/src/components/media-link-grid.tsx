@@ -38,31 +38,41 @@ export function MediaLinkGrid({mediaLinks}: {mediaLinks: MediaLink[]}) {
     <section className="grid gap-6 md:grid-cols-2">
       <h2 className="section-title md:col-span-2">Interviews, videos, and social updates</h2>
       {places.length > 0 ? (
-        <div
-          className="flex flex-wrap items-center gap-2 md:col-span-2"
-          role="group"
-          aria-label="Filter media by county or town"
-        >
+        <div className="flex flex-wrap items-center gap-2 md:col-span-2">
           <span className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--color-muted)]">
             Filter by place
           </span>
+          <div
+            className={`chip-track ${placesExpanded ? 'chip-track-expanded' : ''}`}
+            role="group"
+            aria-label="Filter media by county or town"
+          >
+            <button
+              type="button"
+              onClick={() => setSelectedPlace(null)}
+              className={`pill-badge ${selectedPlace === null ? 'pill-badge-active' : ''}`}
+            >
+              <span>All</span>
+            </button>
+            {places.map((place) => (
+              <button
+                key={place}
+                type="button"
+                onClick={() => setSelectedPlace(selectedPlace === place ? null : place)}
+                className={`pill-badge ${selectedPlace === place ? 'pill-badge-active' : ''}`}
+              >
+                <span>{place}</span>
+              </button>
+            ))}
+          </div>
           <button
             type="button"
-            onClick={() => setSelectedPlace(null)}
-            className={`pill-badge ${selectedPlace === null ? 'pill-badge-active' : ''}`}
+            className="pill-badge chip-toggle"
+            aria-expanded={placesExpanded}
+            onClick={() => setPlacesExpanded((value) => !value)}
           >
-            <span>All</span>
+            {placesExpanded ? 'Less' : 'More'}
           </button>
-          {places.map((place) => (
-            <button
-              key={place}
-              type="button"
-              onClick={() => setSelectedPlace(selectedPlace === place ? null : place)}
-              className={`pill-badge ${selectedPlace === place ? 'pill-badge-active' : ''}`}
-            >
-              <span>{place}</span>
-            </button>
-          ))}
         </div>
       ) : null}
       {visible.map((item) => (

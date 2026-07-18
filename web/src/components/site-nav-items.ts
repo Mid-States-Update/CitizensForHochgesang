@@ -6,6 +6,19 @@ export type NavItem = {
   icon?: IconName
 }
 
+/* Single source of truth for the site's default navigation, shared by the
+ * header menu and the footer Explore list. CMS headerNavItems override it,
+ * but both consumers run the result through normalizeNavItems below. */
+export const DEFAULT_NAV_ITEMS: NavItem[] = [
+  {href: '/news', label: 'News', icon: 'newspaper'},
+  {href: '/district', label: 'Our District', icon: 'map-marked-alt'},
+  {href: '/events', label: 'Events', icon: 'calendar'},
+  {href: '/platform', label: 'About & Priorities', icon: 'user-friends'},
+  {href: '/faq', label: 'FAQ', icon: 'question-circle'},
+  {href: '/media', label: 'Media & Press', icon: 'video'},
+  {href: '/support', label: 'Support', icon: 'hands-helping'},
+]
+
 /* Normalizes CMS-driven nav items so structural pages are always reachable:
  * /press folds into /media, and About & Priorities plus Our District are
  * guaranteed a slot even when the CMS list predates them. */

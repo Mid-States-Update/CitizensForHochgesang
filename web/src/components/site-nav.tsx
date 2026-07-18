@@ -9,17 +9,7 @@ import {ThemeToggleMenuItem} from '@/components/theme-toggle'
 import {resolveCmsIcon} from '@/lib/cms/icon-map'
 import type {PageVisibility} from '@/lib/cms/types'
 import {filterNavByVisibility} from '@/components/site-nav-visibility'
-import {normalizeNavItems, type NavItem} from '@/components/site-nav-items'
-
-const defaultNavItems: NavItem[] = [
-  {href: '/news', label: 'News', icon: 'newspaper'},
-  {href: '/district', label: 'Our District', icon: 'map-marked-alt'},
-  {href: '/events', label: 'Events', icon: 'calendar'},
-  {href: '/platform', label: 'About & Priorities', icon: 'user-friends'},
-  {href: '/faq', label: 'FAQ', icon: 'question-circle'},
-  {href: '/media', label: 'Media & Press', icon: 'video'},
-  {href: '/support', label: 'Support', icon: 'hands-helping'},
-]
+import {DEFAULT_NAV_ITEMS, normalizeNavItems, type NavItem} from '@/components/site-nav-items'
 
 type SiteNavProps = {
   items?: NavItem[]
@@ -39,7 +29,7 @@ export function SiteNav({items, pageVisibility}: SiteNavProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const navRef = useRef<HTMLElement>(null)
   const navItems = filterNavByVisibility(
-    normalizeNavItems(items && items.length > 0 ? items : defaultNavItems),
+    normalizeNavItems(items && items.length > 0 ? items : DEFAULT_NAV_ITEMS),
     pageVisibility,
   )
 
