@@ -21,6 +21,7 @@ function getTypeLabel(mediaType: string): string {
 
 export function MediaLinkGrid({mediaLinks}: {mediaLinks: MediaLink[]}) {
   const [selectedPlace, setSelectedPlace] = useState<string | null>(null)
+  const [placesExpanded, setPlacesExpanded] = useState(false)
 
   const geoFilters = useMemo(
     () => geoTagsIn(mediaLinks.flatMap((item) => item.geoTags ?? [])),
