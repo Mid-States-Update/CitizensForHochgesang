@@ -2674,3 +2674,11 @@
   text-anchor: middle;
   pointer-events: none;
 }
+.map2-shape:focus {
+  outline: none;
+}
+.map2-shape:focus-visible {
+  outline: none;
+  stroke: var(--color-ink);
+  stroke-width: 3;
+}

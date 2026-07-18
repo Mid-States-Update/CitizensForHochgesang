@@ -163,7 +163,9 @@ export function DistrictMapV2({
                   }}
                 />
                 {!isZoomed ? (
-                  <Link
+                  /* Plain SVG <a>, not Next Link: HTML components inside the
+                   * SVG namespace break hydration and kill every handler. */
+                  <a
                     href={newsHrefForPlace(`${region.name} County`)}
                     aria-label={`${region.name} County news`}
                     className="map2-label-link"
@@ -171,7 +173,7 @@ export function DistrictMapV2({
                     <text x={label[0]} y={label[1]} className="map2-label">
                       {region.name}
                     </text>
-                  </Link>
+                  </a>
                 ) : null}
               </g>
             )
