@@ -5,6 +5,7 @@ import Link from 'next/link'
 import {useSearchParams} from 'next/navigation'
 import {useEffect, useMemo, useRef, useState} from 'react'
 
+import {ChipTrack} from '@/components/chip-track'
 import {formatDate} from '@/lib/cms/format'
 import {getSanityImageUrl} from '@/lib/cms/image-url'
 import type {PostSummary} from '@/lib/cms/types'
@@ -75,8 +76,6 @@ export function NewsFeed({posts}: NewsFeedProps) {
     return match ?? null
   })
   const [tagQuery, setTagQuery] = useState('')
-  const [tagsExpanded, setTagsExpanded] = useState(false)
-  const [placesExpanded, setPlacesExpanded] = useState(false)
   const [sortMode, setSortMode] = useState<SortMode>('newest')
   const [visibleCount, setVisibleCount] = useState(6)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
@@ -209,11 +208,7 @@ export function NewsFeed({posts}: NewsFeedProps) {
               className="tag-search-input"
             />
           </label>
-          <div
-            className={`chip-track ${tagsExpanded ? 'chip-track-expanded' : ''}`}
-            role="group"
-            aria-label="News tags sorted by number of posts"
-          >
+          <ChipTrack ariaLabel="News tags sorted by number of posts">
             <button
               type="button"
               onClick={() => applyTagFilter(null)}
@@ -233,15 +228,7 @@ export function NewsFeed({posts}: NewsFeedProps) {
                 {count >= 2 ? <span className="pill-badge-count">{count}</span> : null}
               </button>
             ))}
-          </div>
-          <button
-            type="button"
-            className="pill-badge chip-toggle"
-            aria-expanded={tagsExpanded}
-            onClick={() => setTagsExpanded((value) => !value)}
-          >
-            {tagsExpanded ? 'Less' : 'More'}
-          </button>
+          </ChipTrack>
         </div>
 
         <label className="flex shrink-0 items-center gap-2 text-sm text-[color:var(--color-muted)]">
@@ -263,11 +250,7 @@ export function NewsFeed({posts}: NewsFeedProps) {
           <span className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--color-muted)]">
             Filter by place
           </span>
-          <div
-            className={`chip-track ${placesExpanded ? 'chip-track-expanded' : ''}`}
-            role="group"
-            aria-label="Filter news by county or town"
-          >
+          <ChipTrack ariaLabel="Filter news by county or town">
             {[...geoFilters.counties, ...geoFilters.cities].map((place) => (
               <button
                 key={place}
@@ -278,15 +261,7 @@ export function NewsFeed({posts}: NewsFeedProps) {
                 <span>{place}</span>
               </button>
             ))}
-          </div>
-          <button
-            type="button"
-            className="pill-badge chip-toggle"
-            aria-expanded={placesExpanded}
-            onClick={() => setPlacesExpanded((value) => !value)}
-          >
-            {placesExpanded ? 'Less' : 'More'}
-          </button>
+          </ChipTrack>
         </div>
       ) : null}
 

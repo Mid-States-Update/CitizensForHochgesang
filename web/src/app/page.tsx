@@ -8,6 +8,7 @@ import {CmsLink} from '@/components/cms-link'
 import {MidPageCta} from '@/components/mid-page-cta'
 import {PageEffects} from '@/components/page-effects'
 import {ProofSection} from '@/components/proof-section'
+import {UpcomingEventsCarousel} from '@/components/upcoming-events-carousel'
 import {WhyRunningSection} from '@/components/why-running-section'
 import {pickFeaturedMedia} from '@/lib/cms/featured-media'
 import {formatDate, formatDateTime} from '@/lib/cms/format'
@@ -108,7 +109,6 @@ export default async function Home() {
   const {rest: whyRunningStory} = extractBlocksOfType(home.whyRunningBody ?? [], 'mapEmbed')
   const homeGeo = geoTagsIn(allPosts.flatMap((post) => post.tags))
   const newsPlaces = [...homeGeo.counties, ...homeGeo.cities]
-  const nextEvent = showEvents ? events[0] : undefined
   const featuredMedia = pickFeaturedMedia(mediaLinks)
 
   return (
@@ -298,16 +298,8 @@ export default async function Home() {
 
       </section>
 
-      {/* ── 2. Next-event ribbon ── */}
-      {nextEvent ? (
-        <CmsLink href="/events" className="event-ribbon">
-          <span aria-hidden>📍</span>
-          <span className="event-ribbon-label">Next event</span>
-          <span className="event-ribbon-title">{nextEvent.title}</span>
-          <span className="event-ribbon-meta">{formatDateTime(nextEvent.startDate)}</span>
-          <span className="event-ribbon-cta">View event →</span>
-        </CmsLink>
-      ) : null}
+      {/* ── 2. Upcoming events carousel: swipe on mobile, chevrons on desktop ── */}
+      {showEvents ? <UpcomingEventsCarousel events={events} /> : null}
 
       {/* ── 3. Our District map: the interactive hook, straight to counties,
              towns, and filtered news ── */}

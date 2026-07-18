@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import {useMemo, useState} from 'react'
 
+import {ChipTrack} from '@/components/chip-track'
 import {CmsLink} from '@/components/cms-link'
 import {formatDate} from '@/lib/cms/format'
 import type {MediaLink} from '@/lib/cms/types'
@@ -21,7 +22,6 @@ function getTypeLabel(mediaType: string): string {
 
 export function MediaLinkGrid({mediaLinks}: {mediaLinks: MediaLink[]}) {
   const [selectedPlace, setSelectedPlace] = useState<string | null>(null)
-  const [placesExpanded, setPlacesExpanded] = useState(false)
 
   const geoFilters = useMemo(
     () => geoTagsIn(mediaLinks.flatMap((item) => item.geoTags ?? [])),
@@ -43,11 +43,7 @@ export function MediaLinkGrid({mediaLinks}: {mediaLinks: MediaLink[]}) {
           <span className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--color-muted)]">
             Filter by place
           </span>
-          <div
-            className={`chip-track ${placesExpanded ? 'chip-track-expanded' : ''}`}
-            role="group"
-            aria-label="Filter media by county or town"
-          >
+          <ChipTrack ariaLabel="Filter media by county or town">
             <button
               type="button"
               onClick={() => setSelectedPlace(null)}
@@ -65,15 +61,7 @@ export function MediaLinkGrid({mediaLinks}: {mediaLinks: MediaLink[]}) {
                 <span>{place}</span>
               </button>
             ))}
-          </div>
-          <button
-            type="button"
-            className="pill-badge chip-toggle"
-            aria-expanded={placesExpanded}
-            onClick={() => setPlacesExpanded((value) => !value)}
-          >
-            {placesExpanded ? 'Less' : 'More'}
-          </button>
+          </ChipTrack>
         </div>
       ) : null}
       {visible.map((item) => (

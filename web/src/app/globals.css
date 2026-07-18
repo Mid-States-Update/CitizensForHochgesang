@@ -722,16 +722,7 @@
     }
   }
 
-  /* Next-event ribbon: slim clickable band directly under the hero */
-  .event-ribbon {
-    @apply flex flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)]/80 px-5 py-3 text-sm transition;
-  }
-
-  .event-ribbon:hover {
-    border-color: color-mix(in srgb, var(--color-accent) 40%, var(--color-border));
-    background-color: color-mix(in srgb, var(--color-highlight) 40%, var(--color-surface));
-  }
-
+  /* Ribbon text roles, shared by the upcoming-events carousel cards */
   .event-ribbon-label {
     @apply text-xs font-semibold uppercase tracking-[0.25em] text-[color:var(--color-accent)];
   }
@@ -1885,12 +1876,15 @@
     color: color-mix(in srgb, var(--color-ink) 86%, var(--color-accent));
   }
 
-  /* ── Chip tracks: every tag/place list is ONE scrollable line by default,
-   * on every width; an optional toggle expands it to a wrapped grid. ── */
+  /* ── Chip tracks: every tag/place list is ONE scrollable line on every
+   * width. Swipe on touch; .chip-nav chevrons page it on wider views.
+   * contain: inline-size zeroes the track's intrinsic width so a long chip
+   * list can never stretch grid/flex ancestors and widen the page. ── */
   .chip-track {
     display: flex;
     flex: 1 1 0%;
     min-width: 0;
+    contain: inline-size;
     flex-wrap: nowrap;
     align-items: center;
     gap: 0.5rem;
@@ -1907,13 +1901,104 @@
     flex-shrink: 0;
   }
 
-  .chip-track-expanded {
-    flex-wrap: wrap;
-    overflow-x: visible;
+  .chip-track-shell {
+    display: flex;
+    flex: 1 1 0%;
+    min-width: 0;
+    contain: inline-size;
+    align-items: center;
+    gap: 0.375rem;
   }
 
-  .chip-toggle {
-    flex-shrink: 0;
+  .chip-nav {
+    display: none;
+  }
+
+  @media (min-width: 640px) {
+    .chip-nav {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 9999px;
+      border: 1px solid var(--color-border);
+      background-color: var(--color-surface);
+      color: var(--color-muted);
+      font-size: 0.7rem;
+      transition: border-color 150ms ease, color 150ms ease;
+    }
+
+    .chip-nav:hover:not(:disabled) {
+      border-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-border));
+      color: var(--color-accent);
+    }
+
+    .chip-nav:disabled {
+      opacity: 0.35;
+    }
+  }
+
+  /* ── Upcoming events carousel: slim snap slides under the hero. Mobile
+   * swipes with the next card peeking in; sm+ pages one slide via chevrons. ── */
+  .event-carousel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    contain: inline-size;
+  }
+
+  .event-carousel-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-inline: 0.25rem;
+  }
+
+  .event-carousel-count {
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-muted);
+  }
+
+  .event-carousel-nav {
+    display: inline-flex;
+    gap: 0.375rem;
+  }
+
+  .event-carousel-all {
+    @apply ml-auto text-sm font-semibold text-[color:var(--color-accent)];
+  }
+
+  .event-carousel-track {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .event-carousel-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .event-carousel-card {
+    @apply flex flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)]/80 px-5 py-3 text-sm transition;
+    flex: 0 0 88%;
+    scroll-snap-align: start;
+    align-content: flex-start;
+  }
+
+  @media (min-width: 640px) {
+    .event-carousel-card {
+      flex-basis: 100%;
+    }
+  }
+
+  .event-carousel-card:hover {
+    border-color: color-mix(in srgb, var(--color-accent) 40%, var(--color-border));
+    background-color: color-mix(in srgb, var(--color-highlight) 40%, var(--color-surface));
   }
 
   .tag-search-shell {
