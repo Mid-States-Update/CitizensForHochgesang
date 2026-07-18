@@ -1464,6 +1464,58 @@
     @apply py-2;
   }
 
+  /* On phones, long stacked card lists become horizontal swipe rows so the
+   * page stays short; from sm up the original grid utilities take over.
+   * Doubled class defeats the later utilities layer without !important. */
+  @media (max-width: 639px) {
+    .homepage-scroll-row.homepage-scroll-row {
+      display: flex;
+      overflow-x: auto;
+      gap: 0.75rem;
+      scroll-snap-type: x proximity;
+      padding-bottom: 0.5rem;
+    }
+
+    .homepage-scroll-row.homepage-scroll-row > * {
+      flex: 0 0 min(20rem, 82%);
+      scroll-snap-align: start;
+    }
+  }
+
+  /* ── Mobile quick-action bar (Donate / Volunteer) ── */
+  .mobile-action-bar {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 80;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem calc(0.5rem + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--color-border);
+    background: color-mix(in srgb, var(--color-surface) 90%, transparent);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+
+  .mobile-action-btn {
+    justify-content: center;
+  }
+
+  @media (min-width: 768px) {
+    .mobile-action-bar {
+      display: none;
+    }
+  }
+
+  /* Keep the footer reachable above the fixed bar on phones. */
+  @media (max-width: 767px) {
+    body {
+      padding-bottom: calc(3.75rem + env(safe-area-inset-bottom));
+    }
+  }
+
   .nav-link {
     @apply inline-flex items-center rounded-full px-3 py-2 text-[color:var(--color-muted)] transition;
     transition-property: color, background-color, transform, border-color;

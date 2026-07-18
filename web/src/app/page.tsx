@@ -305,49 +305,37 @@ export default async function Home() {
         </CmsLink>
       ) : null}
 
-      {/* ── 3. Priority Cards ── */}
-      {homeSectionCards.length > 0 ? (
-        <section className="priority-cards-section">
-          <div className="priority-cards-grid">
-            {homeSectionCards.map((item) => {
-              const SectionIcon = resolveCmsIcon(item.icon, FaNewspaper)
+      {/* ── 3. Our District map: the interactive hook, straight to counties,
+             towns, and filtered news ── */}
+      <section className="homepage-feed-section">
+        <div className="card flex flex-col gap-4">
+          <p className="eyebrow">Our district</p>
+          <h2 className="section-title">Six counties, one district</h2>
+          <DistrictMapV2 counties={countyPages} cities={cityPages} newsPlaces={newsPlaces} />
+          {countyPages.length > 0 ? (
+            <div className="county-strip homepage-scroll-row">
+              {countyPages.map((county) => (
+                <Link key={county.slug} className="county-strip-item" href={`/district/${county.slug}`}>
+                  <span className="county-strip-name">{county.title}</span>
+                  <span className="county-strip-towns">{county.townsLine}</span>
+                </Link>
+              ))}
+            </div>
+          ) : null}
+          <Link className="btn btn-outline self-start" href="/district">
+            Explore the full district page →
+          </Link>
+        </div>
+      </section>
 
-              return (
-                <div key={item.title} className="card priority-card">
-                  <h2 className="text-xl font-semibold text-[color:var(--color-ink)]">
-                    <SectionIcon aria-hidden className="mr-2 inline-block text-[color:var(--color-accent)]" />
-                    {item.title}
-                  </h2>
-                  <p className="mt-3 text-sm text-[color:var(--color-muted)]">
-                    {item.copy}
-                  </p>
-                  <div className="mt-4">
-                    <Link className="btn btn-outline" href={item.href}>
-                      {item.ctaLabel || `View ${item.title}`}
-                    </Link>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </section>
-      ) : null}
-
-      {/* ── 4. "Why I'm Running" (story only; the district map renders below) ── */}
-      <WhyRunningSection
-        heading={home.whyRunningHeading}
-        body={whyRunningStory}
-        imageUrl={home.whyRunningImageUrl}
-      />
-
-      {/* ── 5. "Proof / Credibility" Section ── */}
+      {/* ── 4. "Proof / Credibility" Section ── */}
       <ProofSection
         heading={home.proofHeading}
         stats={home.proofStats}
         body={home.proofBody}
       />
 
-      {/* ── 6. News / Updates ── */}
+      {/* ── 5. News / Updates ── */}
       {showNews ? (
         <section className="homepage-feed-section">
           <div className="card flex flex-col gap-6">
@@ -358,7 +346,7 @@ export default async function Home() {
                 <p className="text-sm text-[color:var(--color-muted)]">{home.newsSectionIntro}</p>
               ) : null}
             </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="homepage-scroll-row grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {posts.map((post) => (
                 <article key={post.slug} className="article-card rounded-2xl border border-[color:var(--color-border)] px-4 py-4">
                   {post.coverImageUrl ? (
@@ -392,6 +380,15 @@ export default async function Home() {
         </section>
       ) : null}
 
+      {/* ── 6. Mid-Page CTA: donate and volunteer, above the fold count of
+             a typical mobile session ── */}
+      <MidPageCta
+        heading={home.midCtaHeading}
+        copy={home.midCtaCopy}
+        donateUrl={settings.donateUrl}
+        volunteerUrl={settings.volunteerUrl}
+      />
+
       {/* ── 7. Events ── */}
       {showEvents ? (
         <section className="homepage-feed-section">
@@ -417,31 +414,39 @@ export default async function Home() {
         </section>
       ) : null}
 
-      {/* ── 8. Our District map ── */}
-      <section className="homepage-feed-section">
-        <div className="card flex flex-col gap-4">
-          <p className="eyebrow">Our district</p>
-          <h2 className="section-title">Six counties, one district</h2>
-          <DistrictMapV2 counties={countyPages} cities={cityPages} newsPlaces={newsPlaces} />
-          {countyPages.length > 0 ? (
-            <div className="county-strip">
-              {countyPages.map((county) => (
-                <Link key={county.slug} className="county-strip-item" href={`/district/${county.slug}`}>
-                  <span className="county-strip-name">{county.title}</span>
-                  <span className="county-strip-towns">{county.townsLine}</span>
-                </Link>
-              ))}
-            </div>
-          ) : null}
-        </div>
-      </section>
+      {/* ── 8. Priority Cards ── */}
+      {homeSectionCards.length > 0 ? (
+        <section className="priority-cards-section">
+          <div className="priority-cards-grid homepage-scroll-row">
+            {homeSectionCards.map((item) => {
+              const SectionIcon = resolveCmsIcon(item.icon, FaNewspaper)
 
-      {/* ── 9. Mid-Page CTA ── */}
-      <MidPageCta
-        heading={home.midCtaHeading}
-        copy={home.midCtaCopy}
-        donateUrl={settings.donateUrl}
-        volunteerUrl={settings.volunteerUrl}
+              return (
+                <div key={item.title} className="card priority-card">
+                  <h2 className="text-xl font-semibold text-[color:var(--color-ink)]">
+                    <SectionIcon aria-hidden className="mr-2 inline-block text-[color:var(--color-accent)]" />
+                    {item.title}
+                  </h2>
+                  <p className="mt-3 text-sm text-[color:var(--color-muted)]">
+                    {item.copy}
+                  </p>
+                  <div className="mt-4">
+                    <Link className="btn btn-outline" href={item.href}>
+                      {item.ctaLabel || `View ${item.title}`}
+                    </Link>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </section>
+      ) : null}
+
+      {/* ── 9. "Why I'm Running" story: long-form for readers already pulled in ── */}
+      <WhyRunningSection
+        heading={home.whyRunningHeading}
+        body={whyRunningStory}
+        imageUrl={home.whyRunningImageUrl}
       />
 
       {/* ── 10. Media feature ── */}

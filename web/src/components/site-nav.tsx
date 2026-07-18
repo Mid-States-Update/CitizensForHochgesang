@@ -7,17 +7,13 @@ import {FaBars, FaNewspaper, FaTimes} from 'react-icons/fa'
 import {CmsLink} from '@/components/cms-link'
 import {ThemeToggleMenuItem} from '@/components/theme-toggle'
 import {resolveCmsIcon} from '@/lib/cms/icon-map'
-import type {IconName, PageVisibility} from '@/lib/cms/types'
+import type {PageVisibility} from '@/lib/cms/types'
 import {filterNavByVisibility} from '@/components/site-nav-visibility'
-
-type NavItem = {
-  href: string
-  label: string
-  icon?: IconName
-}
+import {normalizeNavItems, type NavItem} from '@/components/site-nav-items'
 
 const defaultNavItems: NavItem[] = [
   {href: '/news', label: 'News', icon: 'newspaper'},
+  {href: '/district', label: 'Our District', icon: 'map-marked-alt'},
   {href: '/events', label: 'Events', icon: 'calendar'},
   {href: '/platform', label: 'About & Priorities', icon: 'user-friends'},
   {href: '/faq', label: 'FAQ', icon: 'question-circle'},
@@ -36,40 +32,6 @@ function isActivePath(pathname: string, href: string) {
   }
 
   return pathname.startsWith(`${href}/`)
-}
-
-function normalizeNavItems(items: NavItem[]): NavItem[] {
-  const normalized: NavItem[] = []
-
-  for (const item of items) {
-    if (item.href === '/press' || item.href === '/media') {
-      if (normalized.some((entry) => entry.href === '/media')) {
-        continue
-      }
-
-      normalized.push({
-        href: '/media',
-        label: 'Media & Press',
-        icon: item.icon === 'reg-newspaper' ? 'video' : item.icon,
-      })
-      continue
-    }
-
-    normalized.push(item)
-  }
-
-  if (!normalized.some((entry) => entry.href === '/platform')) {
-    const eventsIndex = normalized.findIndex((entry) => entry.href === '/events')
-    const platformItem: NavItem = {href: '/platform', label: 'About & Priorities', icon: 'user-friends'}
-
-    if (eventsIndex >= 0) {
-      normalized.splice(eventsIndex + 1, 0, platformItem)
-    } else {
-      normalized.unshift(platformItem)
-    }
-  }
-
-  return normalized
 }
 
 export function SiteNav({items, pageVisibility}: SiteNavProps) {
