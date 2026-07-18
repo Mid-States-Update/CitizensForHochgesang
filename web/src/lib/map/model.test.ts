@@ -2,6 +2,7 @@ import {describe, expect, it} from 'vitest'
 
 import {
   buildMapModel,
+  chaikinSmooth,
   newsHrefForPlace,
   planCityLabels,
   polygonCentroid,
@@ -156,6 +157,28 @@ describe('planCityLabels', () => {
   it('matches news places across Saint/St. spelling', () => {
     const plan = planCityLabels([mk('Saint Anthony', 'Dubois', 100)], ['St. Anthony'])
     expect(plan.get('Saint Anthony|Dubois')).toEqual({labeled: true, clickable: true})
+  })
+})
+
+describe('chaikinSmooth', () => {
+  const square: Array<[number, number]> = [[0, 0], [4, 0], [4, 4], [0, 4]]
+
+  it('doubles the point count per iteration on a closed ring', () => {
+    expect(chaikinSmooth(square, 1)).toHaveLength(8)
+    expect(chaikinSmooth(square, 2)).toHaveLength(16)
+  })
+
+  it('cuts each corner with points at 1/4 and 3/4 along every edge', () => {
+    const smoothed = chaikinSmooth(square, 1)
+    expect(smoothed).toContainEqual([1, 0])
+    expect(smoothed).toContainEqual([3, 0])
+    expect(smoothed).toContainEqual([4, 1])
+    expect(smoothed).not.toContainEqual([4, 0])
+  })
+
+  it('leaves degenerate rings untouched', () => {
+    const line: Array<[number, number]> = [[0, 0], [1, 1]]
+    expect(chaikinSmooth(line, 1)).toEqual(line)
   })
 })
 

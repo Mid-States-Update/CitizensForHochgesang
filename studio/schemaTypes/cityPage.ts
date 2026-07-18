@@ -70,7 +70,7 @@ export const cityPage = defineType({
       group: ['content', 'metadata'],
       rows: 3,
       description: 'One or two sentences framing the page. Also used as the meta description.',
-      validation: (Rule) => Rule.required().max(320),
+      validation: (Rule) => Rule.required().max(400),
     }),
     defineField({
       name: 'ledeTitle',

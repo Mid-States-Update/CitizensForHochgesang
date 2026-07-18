@@ -197,6 +197,30 @@ export function planCityLabels(
   return plan
 }
 
+/* Chaikin corner-cutting for closed rings: each pass replaces every edge
+ * with points 1/4 and 3/4 along it, doubling the point count and rounding
+ * corners. Purely cosmetic; the underlying data stays the official TIGER
+ * boundary. Deviation per pass is at most a quarter of an edge length,
+ * sub-pixel at this map's scales. */
+export function chaikinSmooth(
+  points: Array<[number, number]>,
+  iterations = 1
+): Array<[number, number]> {
+  if (points.length < 3) return points
+  let ring = points
+  for (let pass = 0; pass < iterations; pass++) {
+    const out: Array<[number, number]> = []
+    for (let i = 0; i < ring.length; i++) {
+      const [x0, y0] = ring[i]
+      const [x1, y1] = ring[(i + 1) % ring.length]
+      out.push([x0 * 0.75 + x1 * 0.25, y0 * 0.75 + y1 * 0.25])
+      out.push([x0 * 0.25 + x1 * 0.75, y0 * 0.25 + y1 * 0.75])
+    }
+    ring = out
+  }
+  return ring
+}
+
 export function newsHrefForPlace(place: string): string {
   return `/news?place=${encodeURIComponent(place)}`
 }

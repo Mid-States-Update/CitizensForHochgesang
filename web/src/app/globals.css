@@ -2668,7 +2668,7 @@
 .map2-township path {
   fill: none;
   stroke: var(--color-border);
-  stroke-width: 0.65;
+  stroke-width: 0.5;
   pointer-events: none;
 }
 .map2-shape:focus {
@@ -2692,10 +2692,12 @@
 .map2-city path {
   fill: transparent;
   stroke: var(--color-accent);
-  stroke-width: 0.9;
+  stroke-width: 0.75;
+  stroke-linejoin: round;
+  stroke-linecap: round;
 }
 .map2-city:hover path {
-  stroke-width: 1.75;
+  stroke-width: 1.5;
 }
 .map2-city-cdp path {
   stroke-dasharray: 4 3;

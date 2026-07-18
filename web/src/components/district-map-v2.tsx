@@ -7,6 +7,7 @@ import district48Data from './indiana-district-map-coordinates'
 import {district48Cities} from './district48-cities'
 import {
   buildMapModel,
+  chaikinSmooth,
   newsHrefForPlace,
   planCityLabels,
   polygonCentroid,
@@ -237,7 +238,12 @@ export function DistrictMapV2({
             ? district48Cities
                 .filter((city) => city.county === zoomedShape.region.name)
                 .map((city) => {
-                  const rings = city.rings.map((points) => ({points}))
+                  /* Two smoothing passes quadruple the rendered points and
+                   * soften TIGER's parcel-staircase corners; townships below
+                   * stay unsmoothed so survey-grid lines keep true corners. */
+                  const rings = city.rings.map((points) => ({
+                    points: chaikinSmooth(points, 2),
+                  }))
                   const [cx, cy] = project(polygonCentroid(rings), bbox, viewport)
                   const plan = labelPlan.get(`${city.name}|${city.county}`)
                   /* Every town gets a label; unplanned ones stay hidden until
