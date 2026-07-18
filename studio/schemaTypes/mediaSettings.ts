@@ -68,7 +68,8 @@ export const mediaSettings = defineType({
               name: 'label',
               title: 'Label',
               type: 'string',
-              validation: (Rule) => Rule.required().max(80),
+              // Long enough for poll labels with full sponsorship attribution.
+              validation: (Rule) => Rule.required().max(140),
             }),
             defineField({
               name: 'url',
