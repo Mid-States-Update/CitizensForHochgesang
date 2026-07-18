@@ -160,6 +160,7 @@ export function DistrictMapV2({
               'map2-county',
               region.status === 'live' ? 'map2-live' : 'map2-soon',
               isSelected ? 'map2-selected' : '',
+              isZoomed ? 'map2-zoomed' : '',
               view.level === 'county' && !isZoomed ? 'map2-dim' : '',
             ].join(' ')
             return (

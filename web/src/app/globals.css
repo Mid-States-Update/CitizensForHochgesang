@@ -2591,7 +2591,8 @@
 .map2 {
   display: grid;
   gap: 1.25rem;
-  max-width: 640px;
+  width: 100%;
+  max-width: 800px;
   margin-inline: auto;
 }
 .map2-svg {
@@ -2654,6 +2655,15 @@
 .map2-county:focus-visible .map2-shape {
   stroke: var(--color-ink);
   stroke-width: 3;
+}
+/* When zoomed into a county, resting the cursor on it should not keep the
+ * bright hover inversion; declared after the hover rules so it wins. */
+.map2-zoomed:hover .map2-shape,
+.map2-zoomed.map2-selected .map2-shape {
+  fill: var(--color-highlight);
+}
+.map2-zoomed .map2-shape {
+  cursor: zoom-out;
 }
 .map2-panel {
   border: 1px solid var(--color-border);

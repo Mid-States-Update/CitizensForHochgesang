@@ -346,7 +346,9 @@ export default async function Home() {
                 <p className="text-sm text-[color:var(--color-muted)]">{home.newsSectionIntro}</p>
               ) : null}
             </div>
-            <div className="homepage-scroll-row grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {/* sm:grid (not bare grid): the utilities layer would beat the
+                mobile swipe-row override below 640px. */}
+            <div className="homepage-scroll-row gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3">
               {posts.map((post) => (
                 <article key={post.slug} className="article-card rounded-2xl border border-[color:var(--color-border)] px-4 py-4">
                   {post.coverImageUrl ? (

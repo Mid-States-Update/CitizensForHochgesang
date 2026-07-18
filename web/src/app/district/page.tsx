@@ -29,7 +29,7 @@ export default async function DistrictIndexPage() {
   return (
     <main className={getPageShellClasses(pageVisualSettings)} {...getPageShellDataAttributes(pageVisualSettings)}>
       <PageEffects visuals={pageVisualSettings} />
-      <section className="card grid gap-4">
+      <section className="card flex flex-col gap-4">
         <p className="eyebrow">Our district</p>
         <h1 className="section-title">Six counties, one district</h1>
         <p className="max-w-3xl text-base text-[color:var(--color-muted)]">
