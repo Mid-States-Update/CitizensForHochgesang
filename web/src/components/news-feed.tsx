@@ -166,7 +166,7 @@ export function NewsFeed({posts}: NewsFeedProps) {
     }
 
     return sorted
-  }, [preparedPosts, selectedTag, sortMode])
+  }, [preparedPosts, selectedTag, sortMode, tagQuery])
 
   useEffect(() => {
     const sentinel = sentinelRef.current
