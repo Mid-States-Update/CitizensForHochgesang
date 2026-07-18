@@ -15,7 +15,7 @@ export const district48Cities: District48City[] = [
   "name": "Alton",
   "kind": "town",
   "county": "Crawford",
-  "pop": 0,
+  "pop": 29,
   "rings": [
    [
     [
@@ -959,7 +959,7 @@ export const district48Cities: District48City[] = [
   "name": "English",
   "kind": "town",
   "county": "Crawford",
-  "pop": 0,
+  "pop": 685,
   "rings": [
    [
     [
@@ -2287,7 +2287,7 @@ export const district48Cities: District48City[] = [
   "name": "Leavenworth",
   "kind": "town",
   "county": "Crawford",
-  "pop": 0,
+  "pop": 289,
   "rings": [
    [
     [
@@ -2809,7 +2809,7 @@ export const district48Cities: District48City[] = [
   "name": "Marengo",
   "kind": "town",
   "county": "Crawford",
-  "pop": 0,
+  "pop": 829,
   "rings": [
    [
     [
@@ -3905,7 +3905,7 @@ export const district48Cities: District48City[] = [
   "name": "Birdseye",
   "kind": "town",
   "county": "Dubois",
-  "pop": 0,
+  "pop": 417,
   "rings": [
    [
     [
@@ -5291,7 +5291,7 @@ export const district48Cities: District48City[] = [
   "name": "Dubois",
   "kind": "cdp",
   "county": "Dubois",
-  "pop": 0,
+  "pop": 478,
   "rings": [
    [
     [
@@ -5917,7 +5917,7 @@ export const district48Cities: District48City[] = [
   "name": "Ferdinand",
   "kind": "town",
   "county": "Dubois",
-  "pop": 0,
+  "pop": 2157,
   "rings": [
    [
     [
@@ -8481,7 +8481,7 @@ export const district48Cities: District48City[] = [
   "name": "Holland",
   "kind": "town",
   "county": "Dubois",
-  "pop": 0,
+  "pop": 619,
   "rings": [
    [
     [
@@ -8931,7 +8931,7 @@ export const district48Cities: District48City[] = [
   "name": "Huntingburg",
   "kind": "town",
   "county": "Dubois",
-  "pop": 0,
+  "pop": 6362,
   "rings": [
    [
     [
@@ -10847,7 +10847,7 @@ export const district48Cities: District48City[] = [
   "name": "Jasper",
   "kind": "town",
   "county": "Dubois",
-  "pop": 0,
+  "pop": 16703,
   "rings": [
    [
     [
@@ -16831,7 +16831,7 @@ export const district48Cities: District48City[] = [
   "name": "Fort Branch",
   "kind": "town",
   "county": "Gibson",
-  "pop": 0,
+  "pop": 2965,
   "rings": [
    [
     [
@@ -17669,7 +17669,7 @@ export const district48Cities: District48City[] = [
   "name": "Francisco",
   "kind": "town",
   "county": "Gibson",
-  "pop": 0,
+  "pop": 545,
   "rings": [
    [
     [
@@ -18123,7 +18123,7 @@ export const district48Cities: District48City[] = [
   "name": "Haubstadt",
   "kind": "town",
   "county": "Gibson",
-  "pop": 0,
+  "pop": 1638,
   "rings": [
    [
     [
@@ -18549,7 +18549,7 @@ export const district48Cities: District48City[] = [
   "name": "Hazleton",
   "kind": "town",
   "county": "Gibson",
-  "pop": 0,
+  "pop": 194,
   "rings": [
    [
     [
@@ -19241,7 +19241,7 @@ export const district48Cities: District48City[] = [
   "name": "Mackey",
   "kind": "town",
   "county": "Gibson",
-  "pop": 0,
+  "pop": 131,
   "rings": [
    [
     [
@@ -19599,7 +19599,7 @@ export const district48Cities: District48City[] = [
   "name": "Oakland City",
   "kind": "town",
   "county": "Gibson",
-  "pop": 0,
+  "pop": 2279,
   "rings": [
    [
     [
@@ -20563,7 +20563,7 @@ export const district48Cities: District48City[] = [
   "name": "Owensville",
   "kind": "town",
   "county": "Gibson",
-  "pop": 0,
+  "pop": 1338,
   "rings": [
    [
     [
@@ -21237,7 +21237,7 @@ export const district48Cities: District48City[] = [
   "name": "Patoka",
   "kind": "town",
   "county": "Gibson",
-  "pop": 0,
+  "pop": 706,
   "rings": [
    [
     [
@@ -22211,7 +22211,7 @@ export const district48Cities: District48City[] = [
   "name": "Princeton",
   "kind": "town",
   "county": "Gibson",
-  "pop": 0,
+  "pop": 8301,
   "rings": [
    [
     [
@@ -23997,7 +23997,7 @@ export const district48Cities: District48City[] = [
   "name": "Somerville",
   "kind": "town",
   "county": "Gibson",
-  "pop": 0,
+  "pop": 253,
   "rings": [
    [
     [
@@ -24515,7 +24515,7 @@ export const district48Cities: District48City[] = [
   "name": "Cannelton",
   "kind": "town",
   "county": "Perry",
-  "pop": 0,
+  "pop": 1524,
   "rings": [
    [
     [
@@ -25839,7 +25839,7 @@ export const district48Cities: District48City[] = [
   "name": "Tell City",
   "kind": "town",
   "county": "Perry",
-  "pop": 0,
+  "pop": 7506,
   "rings": [
    [
     [
@@ -27317,7 +27317,7 @@ export const district48Cities: District48City[] = [
   "name": "Troy",
   "kind": "town",
   "county": "Perry",
-  "pop": 0,
+  "pop": 347,
   "rings": [
    [
     [
@@ -29367,7 +29367,7 @@ export const district48Cities: District48City[] = [
   "name": "Otwell",
   "kind": "cdp",
   "county": "Pike",
-  "pop": 0,
+  "pop": 396,
   "rings": [
    [
     [
@@ -30457,7 +30457,7 @@ export const district48Cities: District48City[] = [
   "name": "Petersburg",
   "kind": "town",
   "county": "Pike",
-  "pop": 0,
+  "pop": 2304,
   "rings": [
    [
     [
@@ -31169,7 +31169,7 @@ export const district48Cities: District48City[] = [
   "name": "Spurgeon",
   "kind": "town",
   "county": "Pike",
-  "pop": 0,
+  "pop": 172,
   "rings": [
    [
     [
@@ -31923,7 +31923,7 @@ export const district48Cities: District48City[] = [
   "name": "Winslow",
   "kind": "town",
   "county": "Pike",
-  "pop": 0,
+  "pop": 764,
   "rings": [
    [
     [
@@ -32165,7 +32165,7 @@ export const district48Cities: District48City[] = [
   "name": "Chrisney",
   "kind": "town",
   "county": "Spencer",
-  "pop": 0,
+  "pop": 465,
   "rings": [
    [
     [
@@ -32667,7 +32667,7 @@ export const district48Cities: District48City[] = [
   "name": "Dale",
   "kind": "town",
   "county": "Spencer",
-  "pop": 0,
+  "pop": 1544,
   "rings": [
    [
     [
@@ -33549,7 +33549,7 @@ export const district48Cities: District48City[] = [
   "name": "Gentryville",
   "kind": "town",
   "county": "Spencer",
-  "pop": 0,
+  "pop": 243,
   "rings": [
    [
     [
@@ -33735,7 +33735,7 @@ export const district48Cities: District48City[] = [
   "name": "Grandview",
   "kind": "town",
   "county": "Spencer",
-  "pop": 0,
+  "pop": 698,
   "rings": [
    [
     [
@@ -34177,7 +34177,7 @@ export const district48Cities: District48City[] = [
   "name": "Hatfield",
   "kind": "cdp",
   "county": "Spencer",
-  "pop": 0,
+  "pop": 708,
   "rings": [
    [
     [
@@ -36285,7 +36285,7 @@ export const district48Cities: District48City[] = [
   "name": "Richland",
   "kind": "town",
   "county": "Spencer",
-  "pop": 0,
+  "pop": 403,
   "rings": [
    [
     [
@@ -36523,7 +36523,7 @@ export const district48Cities: District48City[] = [
   "name": "Rockport",
   "kind": "town",
   "county": "Spencer",
-  "pop": 0,
+  "pop": 1984,
   "rings": [
    [
     [
@@ -37227,7 +37227,7 @@ export const district48Cities: District48City[] = [
   "name": "Santa Claus",
   "kind": "town",
   "county": "Spencer",
-  "pop": 0,
+  "pop": 2586,
   "rings": [
    [
     [
@@ -38465,7 +38465,7 @@ export const district48Cities: District48City[] = [
   "name": "St. Meinrad",
   "kind": "cdp",
   "county": "Spencer",
-  "pop": 0,
+  "pop": 664,
   "rings": [
    [
     [

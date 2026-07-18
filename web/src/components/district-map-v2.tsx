@@ -170,6 +170,7 @@ export function DistrictMapV2({
                 <path
                   d={path}
                   className="map2-shape"
+                  vectorEffect="non-scaling-stroke"
                   role="button"
                   tabIndex={0}
                   aria-label={
@@ -212,6 +213,26 @@ export function DistrictMapV2({
               </g>
             )
           })}
+          {zoomedShape ? (
+            /* Township underlay: civil townships tile the whole county, so
+             * the zoomed view reads as filled even where no incorporated
+             * place exists. Boundaries only; city labels stay the focus. */
+            <g className="map2-township">
+              {zoomedShape.geo.townships.map((township) => (
+                <path
+                  key={township.name}
+                  vectorEffect="non-scaling-stroke"
+                  d={ringsToPath(
+                    township.rings.map((r) => ({
+                      points: r.coordinates as Array<[number, number]>,
+                    })),
+                    bbox,
+                    viewport
+                  )}
+                />
+              ))}
+            </g>
+          ) : null}
           {zoomedShape
             ? district48Cities
                 .filter((city) => city.county === zoomedShape.region.name)
@@ -234,7 +255,10 @@ export function DistrictMapV2({
                       key={city.name}
                       className={`map2-city ${city.kind === 'cdp' ? 'map2-city-cdp' : ''}`}
                     >
-                      <path d={ringsToPath(rings, bbox, viewport)} />
+                      <path
+                        d={ringsToPath(rings, bbox, viewport)}
+                        vectorEffect="non-scaling-stroke"
+                      />
                       {label && plan?.clickable ? (
                         <a
                           href={newsHrefForPlace(city.name)}

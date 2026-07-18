@@ -2663,15 +2663,12 @@
 .map2-back:hover {
   border-color: var(--color-accent);
 }
+/* Strokes inside .map2-zoom use vector-effect: non-scaling-stroke, so all
+ * widths and dash patterns below are true screen pixels at any zoom. */
 .map2-township path {
   fill: none;
   stroke: var(--color-border);
-  stroke-width: 0.6;
-  pointer-events: none;
-}
-.map2-township text {
-  fill: var(--color-muted);
-  text-anchor: middle;
+  stroke-width: 1;
   pointer-events: none;
 }
 .map2-shape:focus {
@@ -2693,12 +2690,12 @@
 .map2-city path {
   fill: none;
   stroke: var(--color-accent);
-  stroke-width: 1;
+  stroke-width: 1.25;
   pointer-events: none;
 }
 .map2-city-cdp path {
   fill: none;
-  stroke-dasharray: 2 2;
+  stroke-dasharray: 4 3;
 }
 .map2-city-label {
   fill: var(--color-ink);

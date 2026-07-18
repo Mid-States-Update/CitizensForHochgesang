@@ -62,7 +62,39 @@ async function fetchJson(url: string) {
   return res.json()
 }
 
+/* The full-res TIGERweb place layers reject POP100, so 2020 Census counts
+ * come from the Census2020 vintage service (attribute-only query) and are
+ * joined onto the geometry by place name. */
+const POP_SERVICE =
+  'https://tigerweb.geo.census.gov/arcgis/rest/services/Census2020/Places_CouSub_ConCity_SubMCD/MapServer'
+const POP_LAYERS = [4, 5] // Incorporated Places, Census Designated Places
+
+async function fetchPopulations(): Promise<Map<string, number>> {
+  const pops = new Map<string, number>()
+  const envelope = `${bbox.minLon},${bbox.minLat},${bbox.maxLon},${bbox.maxLat}`
+  for (const layer of POP_LAYERS) {
+    const data = await fetchJson(
+      `${POP_SERVICE}/${layer}/query?where=STATE%3D%2718%27&geometry=${envelope}` +
+        `&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects` +
+        `&outFields=BASENAME,POP100&returnGeometry=false&f=json`
+    )
+    if (data.error) throw new Error(`Population query failed: ${JSON.stringify(data.error)}`)
+    for (const feature of data.features ?? []) {
+      const name = feature.attributes?.BASENAME
+      const pop = Number(feature.attributes?.POP100 ?? 0) || 0
+      if (!name) continue
+      if (pops.has(name) && pops.get(name) !== pop) {
+        console.warn(`  ! duplicate place name in envelope: ${name} (${pops.get(name)} vs ${pop})`)
+      }
+      pops.set(name, pop)
+    }
+  }
+  return pops
+}
+
 async function main() {
+  const pops = await fetchPopulations()
+  console.log(`Fetched 2020 Census populations for ${pops.size} places in the envelope`)
   for (const service of SERVICES) {
     try {
       const meta = await fetchJson(`${service}?f=json`)
@@ -84,7 +116,7 @@ async function main() {
         }
         for (const feature of data.features ?? []) {
           const name = feature.properties?.BASENAME
-          const pop = Number(feature.properties?.POP100 ?? 0) || 0
+          const pop = pops.get(name) ?? (Number(feature.properties?.POP100 ?? 0) || 0)
           const geom = feature.geometry
           if (!name || !geom) continue
           const polys: LonLat[][][] =
