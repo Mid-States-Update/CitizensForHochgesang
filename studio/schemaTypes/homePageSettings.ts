@@ -268,7 +268,7 @@ export const homePageSettings = defineType({
               title: 'Copy',
               type: 'text',
               rows: 2,
-              validation: (Rule) => Rule.required().max(160),
+              validation: (Rule) => Rule.required().max(240),
             }),
             defineField({
               name: 'href',

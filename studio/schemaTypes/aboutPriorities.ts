@@ -202,7 +202,7 @@ export const aboutPriorities = defineType({
           },
         },
       ],
-      validation: (Rule) => Rule.required().min(1).max(6),
+      validation: (Rule) => Rule.required().min(1).max(9),
     }),
     defineField({
       name: 'ctaHeading',
