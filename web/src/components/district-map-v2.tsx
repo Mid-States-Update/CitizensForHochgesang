@@ -240,35 +240,49 @@ export function DistrictMapV2({
                   const rings = city.rings.map((points) => ({points}))
                   const [cx, cy] = project(polygonCentroid(rings), bbox, viewport)
                   const plan = labelPlan.get(`${city.name}|${city.county}`)
-                  const label = plan?.labeled ? (
+                  /* Every town gets a label; unplanned ones stay hidden until
+                   * the town is hovered, so any boundary can be identified. */
+                  const label = (
                     <text
                       x={cx}
                       y={cy}
-                      className="map2-city-label"
+                      className={`map2-city-label ${plan?.labeled ? '' : 'map2-city-label-hover'}`}
                       style={{fontSize: `${13 / zoom.scale}px`}}
                     >
                       {city.name}
                     </text>
-                  ) : null
+                  )
+                  const outline = (
+                    <path
+                      d={ringsToPath(rings, bbox, viewport)}
+                      vectorEffect="non-scaling-stroke"
+                    />
+                  )
+                  const cls = [
+                    'map2-city',
+                    city.kind === 'cdp' ? 'map2-city-cdp' : '',
+                    plan?.clickable ? 'map2-city-live' : '',
+                  ].join(' ')
                   return (
-                    <g
-                      key={city.name}
-                      className={`map2-city ${city.kind === 'cdp' ? 'map2-city-cdp' : ''}`}
-                    >
-                      <path
-                        d={ringsToPath(rings, bbox, viewport)}
-                        vectorEffect="non-scaling-stroke"
-                      />
-                      {label && plan?.clickable ? (
+                    <g key={city.name} className={cls}>
+                      {plan?.clickable ? (
+                        /* Whole town (shape + name) is one link when it has
+                         * news; plain SVG <a>, same hydration trap as above. */
                         <a
                           href={newsHrefForPlace(city.name)}
                           aria-label={`${city.name} news`}
                           className="map2-label-link"
                         >
+                          {outline}
                           {label}
                         </a>
                       ) : (
-                        label
+                        /* No news yet: clicking falls through to the same
+                         * unzoom gesture as the rest of the county. */
+                        <g onClick={() => setView({level: 'district'})}>
+                          {outline}
+                          {label}
+                        </g>
                       )}
                     </g>
                   )
