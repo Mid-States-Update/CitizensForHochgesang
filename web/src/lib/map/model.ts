@@ -81,6 +81,16 @@ export type Bounds = {
 
 export type Viewport = {width: number; height: number}
 
+/* Equirectangular viewport: height follows the bbox's true ground aspect,
+ * with the cos(latitude) correction so a map at 38°N is not stretched wide
+ * (a degree of longitude covers less ground than a degree of latitude). */
+export function viewportFor(bbox: Bounds, width: number): Viewport {
+  const midLat = ((bbox.minLat + bbox.maxLat) / 2) * (Math.PI / 180)
+  const groundLonSpan = (bbox.maxLon - bbox.minLon) * Math.cos(midLat)
+  const latSpan = bbox.maxLat - bbox.minLat
+  return {width, height: round2(width * (latSpan / groundLonSpan))}
+}
+
 export function project(
   [lon, lat]: [number, number],
   bbox: Bounds,

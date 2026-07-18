@@ -7,12 +7,14 @@ import district48Data from './indiana-district-map-coordinates'
 import {
   buildMapModel,
   ringsToPath,
+  viewportFor,
   type Bounds,
   type MapRegionModel,
+  type Viewport,
 } from '../lib/map/model'
 import type {CityPageSummary, CountyPageSummary} from '../lib/cms/types'
 
-const VIEWPORT = {width: 760, height: 900}
+const MAP_WIDTH = 760
 const PAD = 0.03
 
 /* District map v2: pure model (lib/map/model.ts) + this thin SVG renderer.
@@ -41,6 +43,8 @@ export function DistrictMapV2({
     }
   }, [])
 
+  const viewport = useMemo(() => viewportFor(bbox, MAP_WIDTH), [bbox])
+
   const shapes = useMemo(
     () =>
       model.regions.map((region) => {
@@ -51,18 +55,18 @@ export function DistrictMapV2({
           path: ringsToPath(
             geo.rings.map((r) => ({points: r.coordinates as Array<[number, number]>})),
             bbox,
-            VIEWPORT
+            viewport
           ),
-          label: projectPoint(geo.centroid as [number, number], bbox),
+          label: projectPoint(geo.centroid as [number, number], bbox, viewport),
         }
       }),
-    [model, bbox]
+    [model, bbox, viewport]
   )
 
   return (
     <div className="map2">
       <svg
-        viewBox={`0 0 ${VIEWPORT.width} ${VIEWPORT.height}`}
+        viewBox={`0 0 ${viewport.width} ${viewport.height}`}
         role="group"
         aria-label="Senate District 48 county map"
         className="map2-svg"
@@ -149,11 +153,15 @@ export function DistrictMapV2({
   )
 }
 
-function projectPoint(pt: [number, number], bbox: Bounds): [number, number] {
+function projectPoint(
+  pt: [number, number],
+  bbox: Bounds,
+  viewport: Viewport
+): [number, number] {
   const x =
-    ((pt[0] - bbox.minLon) / (bbox.maxLon - bbox.minLon)) * VIEWPORT.width
+    ((pt[0] - bbox.minLon) / (bbox.maxLon - bbox.minLon)) * viewport.width
   const y =
-    VIEWPORT.height -
-    ((pt[1] - bbox.minLat) / (bbox.maxLat - bbox.minLat)) * VIEWPORT.height
+    viewport.height -
+    ((pt[1] - bbox.minLat) / (bbox.maxLat - bbox.minLat)) * viewport.height
   return [x, y]
 }

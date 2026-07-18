@@ -5,6 +5,7 @@ import {
   project,
   ringsToPath,
   slugForCountyName,
+  viewportFor,
 } from './model'
 import type {CityPageSummary, CountyPageSummary} from '../cms/types'
 
@@ -75,6 +76,20 @@ describe('buildMapModel', () => {
     expect(pike.cities[0].href).toBe('/district/pike-county/petersburg')
     const spencer = model.regions.find((r) => r.name === 'Spencer')!
     expect(spencer.cities).toEqual([])
+  })
+})
+
+describe('viewportFor', () => {
+  it('derives height from the ground aspect ratio at the equator', () => {
+    const bbox = {minLon: 0, minLat: -0.5, maxLon: 2, maxLat: 0.5}
+    expect(viewportFor(bbox, 800)).toEqual({width: 800, height: 400})
+  })
+
+  it('applies the cosine correction so northern maps are not stretched wide', () => {
+    const bbox = {minLon: 0, minLat: 59.5, maxLon: 2, maxLat: 60.5}
+    const viewport = viewportFor(bbox, 800)
+    expect(viewport.width).toBe(800)
+    expect(viewport.height).toBeCloseTo(800, 0)
   })
 })
 
