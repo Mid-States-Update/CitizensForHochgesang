@@ -2634,3 +2634,43 @@
     transition: none;
   }
 }
+.map2-zoom {
+  transform-origin: 0 0;
+  transition: transform 450ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .map2-zoom {
+    transition: none;
+  }
+}
+.map2-label-link {
+  cursor: pointer;
+}
+.map2-label-link:hover .map2-label,
+.map2-label-link:focus-visible .map2-label {
+  text-decoration: underline;
+}
+.map2-back {
+  justify-self: start;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  padding: 0.35rem 1rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.map2-back:hover {
+  border-color: var(--color-accent);
+}
+.map2-township path {
+  fill: none;
+  stroke: var(--color-border);
+  stroke-width: 0.6;
+  pointer-events: none;
+}
+.map2-township text {
+  fill: var(--color-muted);
+  text-anchor: middle;
+  pointer-events: none;
+}

@@ -2,12 +2,13 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import {useSearchParams} from 'next/navigation'
 import {useEffect, useMemo, useRef, useState} from 'react'
 
 import {formatDate} from '@/lib/cms/format'
 import {getSanityImageUrl} from '@/lib/cms/image-url'
 import type {PostSummary} from '@/lib/cms/types'
-import {geoTagsIn} from '@/lib/geo-tags'
+import {canonicalGeoTag, geoTagsIn} from '@/lib/geo-tags'
 
 const RATIO_DIMENSIONS: Record<string, {width: number; height: number; className: string}> = {
   '16:9': {width: 1600, height: 900, className: 'aspect-[16/9]'},
@@ -59,7 +60,12 @@ function getBodyPreview(post: PostSummary): string | null {
 }
 
 export function NewsFeed({posts}: NewsFeedProps) {
-  const [selectedTag, setSelectedTag] = useState<string | null>(null)
+  const searchParams = useSearchParams()
+  // ?place=Dubois%20County (from the district map) preselects that geo filter;
+  // anything unrecognized is ignored. Sort stays on the default, newest first.
+  const [selectedTag, setSelectedTag] = useState<string | null>(() =>
+    canonicalGeoTag(searchParams.get('place') ?? '')
+  )
   const [tagQuery, setTagQuery] = useState('')
   const [sortMode, setSortMode] = useState<SortMode>('newest')
   const [visibleCount, setVisibleCount] = useState(6)

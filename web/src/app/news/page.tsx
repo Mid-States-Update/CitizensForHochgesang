@@ -1,3 +1,5 @@
+import {Suspense} from 'react'
+
 import {NewsFeed} from '@/components/news-feed'
 import {PageEffects} from '@/components/page-effects'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
@@ -23,7 +25,9 @@ export default async function NewsPage() {
         </p>
       </section>
 
-      <NewsFeed posts={posts} />
+      <Suspense fallback={null}>
+        <NewsFeed posts={posts} />
+      </Suspense>
     </main>
   )
 }

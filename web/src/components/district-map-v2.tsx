@@ -6,21 +6,29 @@ import Link from 'next/link'
 import district48Data from './indiana-district-map-coordinates'
 import {
   buildMapModel,
+  newsHrefForPlace,
+  polygonCentroid,
+  project,
+  projectedRect,
   ringsToPath,
   viewportFor,
+  zoomTransformFor,
   type Bounds,
   type MapRegionModel,
-  type Viewport,
 } from '../lib/map/model'
 import type {CityPageSummary, CountyPageSummary} from '../lib/cms/types'
 
 const MAP_WIDTH = 760
 const PAD = 0.03
+const ZOOM_PAD = 0.12
+
+type View = {level: 'district'} | {level: 'county'; slug: string}
 
 /* District map v2: pure model (lib/map/model.ts) + this thin SVG renderer.
- * Differences from v1: counties are real links to their pages, selection
- * drives a fixed panel below the map instead of a floating popup (nothing
- * to clip on small screens), and every region is keyboard reachable. */
+ * Interactions: county SHAPE click zooms that county to fill the viewport
+ * (township boundaries appear at that level); the county NAME and the city
+ * names in the panel link to /news filtered to that place; the panel links
+ * to the county page itself once published. */
 export function DistrictMapV2({
   counties,
   cities,
@@ -30,6 +38,7 @@ export function DistrictMapV2({
 }) {
   const model = useMemo(() => buildMapModel({counties, cities}), [counties, cities])
   const [selected, setSelected] = useState<MapRegionModel | null>(null)
+  const [view, setView] = useState<View>({level: 'district'})
 
   const bbox: Bounds = useMemo(() => {
     const b = district48Data.district.bbox
@@ -47,121 +56,196 @@ export function DistrictMapV2({
 
   const shapes = useMemo(
     () =>
-      model.regions.map((region) => {
+      model.regions.flatMap((region) => {
         const geo = district48Data.counties.find((c) => c.name === region.name)
-        if (!geo) return null
-        return {
-          region,
-          path: ringsToPath(
-            geo.rings.map((r) => ({points: r.coordinates as Array<[number, number]>})),
-            bbox,
-            viewport
-          ),
-          label: projectPoint(geo.centroid as [number, number], bbox, viewport),
-        }
+        if (!geo) return []
+        const rings = geo.rings.map((r) => ({
+          points: r.coordinates as Array<[number, number]>,
+        }))
+        const lonPad = (geo.bbox.maxLon - geo.bbox.minLon) * ZOOM_PAD
+        const latPad = (geo.bbox.maxLat - geo.bbox.minLat) * ZOOM_PAD
+        return [
+          {
+            region,
+            geo,
+            path: ringsToPath(rings, bbox, viewport),
+            label: project(polygonCentroid(rings), bbox, viewport),
+            zoomRect: projectedRect(
+              {
+                minLon: geo.bbox.minLon - lonPad,
+                minLat: geo.bbox.minLat - latPad,
+                maxLon: geo.bbox.maxLon + lonPad,
+                maxLat: geo.bbox.maxLat + latPad,
+              },
+              bbox,
+              viewport
+            ),
+          },
+        ]
       }),
     [model, bbox, viewport]
   )
 
+  const zoomedShape =
+    view.level === 'county'
+      ? shapes.find((s) => s.region.slug === view.slug) ?? null
+      : null
+  const zoom = zoomedShape
+    ? zoomTransformFor(zoomedShape.zoomRect, viewport)
+    : {scale: 1, tx: 0, ty: 0}
+
+  const focused = zoomedShape?.region ?? selected
+
   return (
     <div className="map2">
+      {view.level === 'county' && zoomedShape ? (
+        <button
+          type="button"
+          className="map2-back"
+          onClick={() => setView({level: 'district'})}
+        >
+          ← Back to the district
+        </button>
+      ) : null}
       <svg
         viewBox={`0 0 ${viewport.width} ${viewport.height}`}
         role="group"
         aria-label="Senate District 48 county map"
         className="map2-svg"
       >
-        {shapes.map((shape) => {
-          if (!shape) return null
-          const {region, path, label} = shape
-          const isSelected = selected?.slug === region.slug
-          const cls = [
-            'map2-county',
-            region.status === 'live' ? 'map2-live' : 'map2-soon',
-            isSelected ? 'map2-selected' : '',
-          ].join(' ')
-          const inner = (
-            <>
-              <path d={path} className="map2-shape" />
-              <text x={label[0]} y={label[1]} className="map2-label">
-                {region.name}
-              </text>
-            </>
-          )
-          return region.status === 'live' ? (
-            <Link
-              key={region.slug}
-              href={region.href!}
-              aria-label={region.ariaLabel}
-              className={cls}
-              onMouseEnter={() => setSelected(region)}
-              onFocus={() => setSelected(region)}
-            >
-              {inner}
-            </Link>
-          ) : (
-            <g
-              key={region.slug}
-              tabIndex={0}
-              role="button"
-              aria-label={region.ariaLabel}
-              className={cls}
-              onMouseEnter={() => setSelected(region)}
-              onFocus={() => setSelected(region)}
-            >
-              {inner}
-            </g>
-          )
-        })}
+        <g
+          className="map2-zoom"
+          style={{
+            transform: `translate(${zoom.tx}px, ${zoom.ty}px) scale(${zoom.scale})`,
+          }}
+        >
+          {shapes.map(({region, path, label}) => {
+            const isZoomed = view.level === 'county' && view.slug === region.slug
+            const isSelected = focused?.slug === region.slug
+            const cls = [
+              'map2-county',
+              region.status === 'live' ? 'map2-live' : 'map2-soon',
+              isSelected ? 'map2-selected' : '',
+            ].join(' ')
+            return (
+              <g
+                key={region.slug}
+                className={cls}
+                onMouseEnter={() => view.level === 'district' && setSelected(region)}
+              >
+                <path
+                  d={path}
+                  className="map2-shape"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={
+                    isZoomed
+                      ? `${region.name} County: zoom back out`
+                      : `${region.name} County: zoom in`
+                  }
+                  onFocus={() => view.level === 'district' && setSelected(region)}
+                  onClick={() =>
+                    setView(
+                      isZoomed
+                        ? {level: 'district'}
+                        : {level: 'county', slug: region.slug}
+                    )
+                  }
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault()
+                      setView(
+                        isZoomed
+                          ? {level: 'district'}
+                          : {level: 'county', slug: region.slug}
+                      )
+                    }
+                  }}
+                />
+                {!isZoomed ? (
+                  <Link
+                    href={newsHrefForPlace(`${region.name} County`)}
+                    aria-label={`${region.name} County news`}
+                    className="map2-label-link"
+                  >
+                    <text x={label[0]} y={label[1]} className="map2-label">
+                      {region.name}
+                    </text>
+                  </Link>
+                ) : null}
+              </g>
+            )
+          })}
+          {zoomedShape
+            ? zoomedShape.geo.townships.map((township) => {
+                const rings = township.rings.map((r) => ({
+                  points: r.coordinates as Array<[number, number]>,
+                }))
+                const [tx, ty] = project(
+                  polygonCentroid(rings),
+                  bbox,
+                  viewport
+                )
+                return (
+                  <g key={township.name} className="map2-township">
+                    <path d={ringsToPath(rings, bbox, viewport)} />
+                    <text
+                      x={tx}
+                      y={ty}
+                      style={{fontSize: `${13 / zoom.scale}px`}}
+                    >
+                      {township.name.replace(/ Township$/, '')}
+                    </text>
+                  </g>
+                )
+              })
+            : null}
+        </g>
       </svg>
 
       <div className="map2-panel" aria-live="polite">
-        {selected ? (
+        {focused ? (
           <>
-            <h3 className="map2-panel-title">{selected.name} County</h3>
-            {selected.status === 'live' ? (
-              <>
-                <p>
-                  <Link href={selected.href!}>
-                    Read what I am hearing in {selected.name} County
-                  </Link>
-                </p>
-                {selected.cities.length > 0 && (
-                  <ul className="map2-cities">
-                    {selected.cities.map((c) => (
-                      <li key={c.slug}>
-                        <Link href={c.href}>{c.title}</Link>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </>
+            <h3 className="map2-panel-title">
+              <Link href={newsHrefForPlace(`${focused.name} County`)}>
+                {focused.name} County
+              </Link>
+            </h3>
+            {focused.status === 'live' ? (
+              <p>
+                <Link href={focused.href!}>
+                  Read what I am hearing in {focused.name} County
+                </Link>
+              </p>
             ) : (
               <p>
-                The {selected.name} County page is being written now. Every county
+                The {focused.name} County page is being written now. Every county
                 in this district gets one.
               </p>
             )}
+            {focused.cities.length > 0 ? (
+              <ul className="map2-cities">
+                {focused.cities.map((c) => (
+                  <li key={c.slug}>
+                    <Link href={newsHrefForPlace(c.title)}>{c.title} news</Link>
+                    {' · '}
+                    <Link href={c.href}>page</Link>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            <p className="map2-panel-hint">
+              {view.level === 'district'
+                ? 'Click the county to zoom in; click its name for county news.'
+                : 'County and city names link to news filtered to that place.'}
+            </p>
           </>
         ) : (
           <p className="map2-panel-hint">
-            Select a county to see its page and towns.
+            Select a county to see its page and towns. Click a county to zoom in.
           </p>
         )}
       </div>
     </div>
   )
-}
-
-function projectPoint(
-  pt: [number, number],
-  bbox: Bounds,
-  viewport: Viewport
-): [number, number] {
-  const x =
-    ((pt[0] - bbox.minLon) / (bbox.maxLon - bbox.minLon)) * viewport.width
-  const y =
-    viewport.height -
-    ((pt[1] - bbox.minLat) / (bbox.maxLat - bbox.minLat)) * viewport.height
-  return [x, y]
 }

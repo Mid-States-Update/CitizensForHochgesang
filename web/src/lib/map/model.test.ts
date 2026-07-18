@@ -2,10 +2,14 @@ import {describe, expect, it} from 'vitest'
 
 import {
   buildMapModel,
+  newsHrefForPlace,
+  polygonCentroid,
   project,
+  projectedRect,
   ringsToPath,
   slugForCountyName,
   viewportFor,
+  zoomTransformFor,
 } from './model'
 import type {CityPageSummary, CountyPageSummary} from '../cms/types'
 
@@ -76,6 +80,57 @@ describe('buildMapModel', () => {
     expect(pike.cities[0].href).toBe('/district/pike-county/petersburg')
     const spencer = model.regions.find((r) => r.name === 'Spencer')!
     expect(spencer.cities).toEqual([])
+  })
+})
+
+describe('polygonCentroid', () => {
+  it('returns the center of a square', () => {
+    expect(
+      polygonCentroid([{points: [[0, 0], [2, 0], [2, 2], [0, 2]]}])
+    ).toEqual([1, 1])
+  })
+
+  it('weights multiple rings by area', () => {
+    const [x, y] = polygonCentroid([
+      {points: [[0, 0], [2, 0], [2, 2], [0, 2]]},
+      {points: [[10, 10], [11, 10], [11, 11], [10, 11]]},
+    ])
+    expect(x).toBeCloseTo(2.9, 5)
+    expect(y).toBeCloseTo(2.9, 5)
+  })
+})
+
+describe('projectedRect', () => {
+  it('projects a sub-bbox into viewport pixels with inverted latitude', () => {
+    const mapBbox = {minLon: 0, minLat: 0, maxLon: 10, maxLat: 10}
+    const viewport = {width: 100, height: 100}
+    const rect = projectedRect(
+      {minLon: 2, minLat: 2, maxLon: 6, maxLat: 4},
+      mapBbox,
+      viewport
+    )
+    expect(rect).toEqual({x: 20, y: 60, width: 40, height: 20})
+  })
+})
+
+describe('zoomTransformFor', () => {
+  it('scales the rect to fill the viewport and centers it', () => {
+    const t = zoomTransformFor({x: 10, y: 20, width: 100, height: 50}, {width: 200, height: 100})
+    expect(t.scale).toBe(2)
+    expect(t.tx).toBe(-20)
+    expect(t.ty).toBe(-40)
+  })
+
+  it('never scales below 1', () => {
+    const t = zoomTransformFor({x: 0, y: 0, width: 400, height: 400}, {width: 200, height: 100})
+    expect(t.scale).toBe(1)
+  })
+})
+
+describe('newsHrefForPlace', () => {
+  it('builds a filtered news URL', () => {
+    expect(newsHrefForPlace('Dubois County')).toBe('/news?place=Dubois%20County')
+    expect(newsHrefForPlace('Tell City')).toBe('/news?place=Tell%20City')
   })
 })
 

@@ -107,6 +107,69 @@ function round2(n: number): number {
   return Math.round(n * 100) / 100
 }
 
+/* Area-weighted centroid (shoelace formula) across all rings, so county
+ * labels sit at the visual center of mass rather than a bbox midpoint. */
+export function polygonCentroid(
+  rings: Array<{points: Array<[number, number]>}>
+): [number, number] {
+  let totalArea = 0
+  let cx = 0
+  let cy = 0
+  for (const ring of rings) {
+    const pts = ring.points
+    let area = 0
+    let rx = 0
+    let ry = 0
+    for (let i = 0; i < pts.length; i++) {
+      const [x0, y0] = pts[i]
+      const [x1, y1] = pts[(i + 1) % pts.length]
+      const cross = x0 * y1 - x1 * y0
+      area += cross
+      rx += (x0 + x1) * cross
+      ry += (y0 + y1) * cross
+    }
+    area /= 2
+    if (area === 0) continue
+    rx /= 6 * area
+    ry /= 6 * area
+    const weight = Math.abs(area)
+    cx += rx * weight
+    cy += ry * weight
+    totalArea += weight
+  }
+  if (totalArea === 0) return [0, 0]
+  return [cx / totalArea, cy / totalArea]
+}
+
+export type Rect = {x: number; y: number; width: number; height: number}
+
+export function projectedRect(
+  bounds: Bounds,
+  mapBbox: Bounds,
+  viewport: Viewport
+): Rect {
+  const [x0, y0] = project([bounds.minLon, bounds.maxLat], mapBbox, viewport)
+  const [x1, y1] = project([bounds.maxLon, bounds.minLat], mapBbox, viewport)
+  return {x: x0, y: y0, width: round2(x1 - x0), height: round2(y1 - y0)}
+}
+
+export type ZoomTransform = {scale: number; tx: number; ty: number}
+
+/* Transform that makes `rect` fill the viewport (centered, aspect kept). */
+export function zoomTransformFor(rect: Rect, viewport: Viewport): ZoomTransform {
+  const scale = Math.max(
+    1,
+    round2(Math.min(viewport.width / rect.width, viewport.height / rect.height))
+  )
+  const tx = round2(viewport.width / 2 - scale * (rect.x + rect.width / 2))
+  const ty = round2(viewport.height / 2 - scale * (rect.y + rect.height / 2))
+  return {scale, tx, ty}
+}
+
+export function newsHrefForPlace(place: string): string {
+  return `/news?place=${encodeURIComponent(place)}`
+}
+
 export function ringsToPath(
   rings: Array<{points: Array<[number, number]>}>,
   bbox: Bounds,
