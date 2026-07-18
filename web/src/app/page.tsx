@@ -17,7 +17,9 @@ import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-vi
 import {extractBlocksOfType} from '@/lib/cms/portable-split'
 import {isPageEnabled} from '@/lib/cms/types'
 import {geoTagsIn} from '@/lib/geo-tags'
+import {priorityHrefForFocusItem} from '@/lib/focus-links'
 import {
+  getAboutPriorities,
   getAllPosts,
   getCityPages,
   getCountyPages,
@@ -65,7 +67,7 @@ function resolveActionClass(style: 'primary' | 'outline' | 'accent' | undefined)
 }
 
 export default async function Home() {
-  const [settings, home, posts, events, mediaLinks, fundraisingLinks, pageVisualSettings, countyPages, cityPages, allPosts] =
+  const [settings, home, posts, events, mediaLinks, fundraisingLinks, pageVisualSettings, countyPages, cityPages, allPosts, about] =
     await Promise.all([
       getSiteSettings(),
       getHomePageSettings(),
@@ -77,6 +79,7 @@ export default async function Home() {
       getCountyPages(),
       getCityPages(),
       getAllPosts(),
+      getAboutPriorities(),
     ])
 
   // Prefer visuals embedded in homePageSettings, fall back to standalone query
@@ -217,7 +220,7 @@ export default async function Home() {
                 <ul className="campaign-focus-list campaign-hero-focus">
                   {campaignFocusItems.map((item) => (
                     <li key={item}>
-                      <Link href="/platform" className="campaign-focus-link">
+                      <Link href={priorityHrefForFocusItem(item, about.priorities)} className="campaign-focus-link">
                         {item}
                       </Link>
                     </li>

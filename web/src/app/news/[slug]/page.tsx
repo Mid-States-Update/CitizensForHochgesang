@@ -84,11 +84,14 @@ export default async function PostPage({params}: PostPageProps) {
           {post.tags.length > 0 ? (
             <ul className="chip-track">
               {post.tags.map((tag) => (
-                <li
-                  key={`${post.slug}-${tag}`}
-                  className="rounded-full border border-[color:var(--color-border)] px-3 py-1 text-xs text-[color:var(--color-muted)]"
-                >
-                  {tag}
+                <li key={`${post.slug}-${tag}`}>
+                  <Link
+                    href={`/news?tag=${encodeURIComponent(tag)}`}
+                    className="pill-badge"
+                    aria-label={`See all articles tagged ${tag}`}
+                  >
+                    {tag}
+                  </Link>
                 </li>
               ))}
             </ul>

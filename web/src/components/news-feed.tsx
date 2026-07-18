@@ -9,7 +9,8 @@ import {ChipTrack} from '@/components/chip-track'
 import {formatDate} from '@/lib/cms/format'
 import {getSanityImageUrl} from '@/lib/cms/image-url'
 import type {PostSummary} from '@/lib/cms/types'
-import {canonicalGeoTag, geoTagsIn} from '@/lib/geo-tags'
+import {geoTagsIn} from '@/lib/geo-tags'
+import {initialSelectedTag, isPlaceTag, postMatchesQuery} from '@/lib/news-filter'
 
 const RATIO_DIMENSIONS: Record<string, {width: number; height: number; className: string}> = {
   '16:9': {width: 1600, height: 900, className: 'aspect-[16/9]'},
@@ -62,19 +63,15 @@ function getBodyPreview(post: PostSummary): string | null {
 
 export function NewsFeed({posts}: NewsFeedProps) {
   const searchParams = useSearchParams()
-  // ?place=Dubois%20County (from the district map) preselects that geo filter.
-  // Canonical places always work; other names count only when a post actually
-  // carries that tag. Junk is ignored. Sort stays on the default, newest first.
-  const [selectedTag, setSelectedTag] = useState<string | null>(() => {
-    const place = searchParams.get('place')?.trim() ?? ''
-    if (!place) return null
-    const canonical = canonicalGeoTag(place)
-    if (canonical) return canonical
-    const match = posts
-      .flatMap((post) => post.tags)
-      .find((tag) => tag.toLowerCase() === place.toLowerCase())
-    return match ?? null
-  })
+  // ?place= (from the district map) and ?tag= (from article tag chips)
+  // preselect a filter. Sort stays on the default, newest first.
+  const [selectedTag, setSelectedTag] = useState<string | null>(() =>
+    initialSelectedTag(
+      searchParams.get('place'),
+      searchParams.get('tag'),
+      posts.flatMap((post) => post.tags)
+    )
+  )
   const [tagQuery, setTagQuery] = useState('')
   const [sortMode, setSortMode] = useState<SortMode>('newest')
   const [visibleCount, setVisibleCount] = useState(6)
@@ -114,13 +111,15 @@ export function NewsFeed({posts}: NewsFeedProps) {
       .map(([tag, count]) => ({tag, count}))
   }, [posts])
 
+  // The tags row shows topics only; places live in the Filter-by-place row.
   const filteredTagCounts = useMemo(() => {
+    const topicCounts = tagCounts.filter(({tag}) => !isPlaceTag(tag))
     const query = tagQuery.trim().toLowerCase()
     if (!query) {
-      return tagCounts
+      return topicCounts
     }
 
-    return tagCounts.filter(({tag}) => tag.toLowerCase().includes(query))
+    return topicCounts.filter(({tag}) => tag.toLowerCase().includes(query))
   }, [tagCounts, tagQuery])
 
   const geoFilters = useMemo(
@@ -152,9 +151,10 @@ export function NewsFeed({posts}: NewsFeedProps) {
   )
 
   const filteredAndSortedPosts = useMemo(() => {
-    const filtered = selectedTag
+    const byTag = selectedTag
       ? preparedPosts.filter((post) => post.tags.some((tag) => tag.toLowerCase() === selectedTag.toLowerCase()))
       : preparedPosts
+    const filtered = byTag.filter((post) => postMatchesQuery(post, tagQuery))
 
     const sorted = [...filtered]
     if (sortMode === 'newest') {
@@ -199,15 +199,26 @@ export function NewsFeed({posts}: NewsFeedProps) {
       <div className="flex items-start gap-3 rounded-2xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)]/70 p-4">
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
           <span className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--color-muted)]">Filter tags</span>
-          <label className="tag-search-shell" aria-label="Search news tags">
+          <label className="tag-search-shell" aria-label="Search articles and tags">
             <input
               type="search"
               value={tagQuery}
               onChange={(event) => setTagQuery(event.target.value)}
-              placeholder="Search tags"
+              placeholder="Search articles"
               className="tag-search-input"
             />
           </label>
+          {selectedTag ? (
+            <button
+              type="button"
+              onClick={() => applyTagFilter(null)}
+              className="pill-badge pill-badge-active shrink-0"
+              aria-label={`Clear the ${selectedTag} filter`}
+            >
+              <span>{selectedTag}</span>
+              <span aria-hidden>✕</span>
+            </button>
+          ) : null}
           <ChipTrack ariaLabel="News tags sorted by number of posts">
             <button
               type="button"
@@ -221,7 +232,7 @@ export function NewsFeed({posts}: NewsFeedProps) {
               <button
                 key={tag}
                 type="button"
-                onClick={() => applyTagFilter(tag)}
+                onClick={() => applyTagFilter(selectedTag === tag ? null : tag)}
                 className={`pill-badge ${selectedTag === tag ? 'pill-badge-active' : ''}`}
               >
                 <span>{tag}</span>
@@ -318,7 +329,7 @@ export function NewsFeed({posts}: NewsFeedProps) {
                       <li key={`${post.slug}-${tag}`}>
                         <button
                           type="button"
-                          onClick={() => applyTagFilter(tag)}
+                          onClick={() => applyTagFilter(selectedTag === tag ? null : tag)}
                           className={`pill-badge ${selectedTag === tag ? 'pill-badge-active' : ''}`}
                         >
                           {tag}
