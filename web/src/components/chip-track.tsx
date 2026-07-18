@@ -23,12 +23,17 @@ export function ChipTrack({ariaLabel, children}: ChipTrackProps) {
     if (!el) {
       return
     }
-    setScrollState(trackScrollState(el.scrollLeft, el.clientWidth, el.scrollWidth))
+    const next = trackScrollState(el.scrollLeft, el.clientWidth, el.scrollWidth)
+    // Bail out when unchanged so the after-every-render measure can't cascade
+    setScrollState((prev) => (prev.canPrev === next.canPrev && prev.canNext === next.canNext ? prev : next))
   }, [])
 
-  // Chip lists change with search filters, so re-measure after every render
-  // and again whenever the track resizes.
-  useEffect(sync)
+  // Chip lists change with search filters without resizing the track, so
+  // re-measure after every render (post-paint) and on track resizes.
+  useEffect(() => {
+    const frame = requestAnimationFrame(sync)
+    return () => cancelAnimationFrame(frame)
+  })
   useEffect(() => {
     const el = trackRef.current
     if (!el) {

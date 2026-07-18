@@ -42,10 +42,16 @@ export function UpcomingEventsCarousel({events}: {events: CampaignEvent[]}) {
     }
     const {el, slideWidth, gap} = measured
     setIndex(slideIndexFromScroll(el.scrollLeft, slideWidth, gap, slides.length))
-    setScrollState(trackScrollState(el.scrollLeft, el.clientWidth, el.scrollWidth))
+    const next = trackScrollState(el.scrollLeft, el.clientWidth, el.scrollWidth)
+    // Bail out when unchanged so the after-every-render measure can't cascade
+    setScrollState((prev) => (prev.canPrev === next.canPrev && prev.canNext === next.canNext ? prev : next))
   }, [slides.length])
 
-  useEffect(sync)
+  // Measure post-paint after each render, and again on track resizes
+  useEffect(() => {
+    const frame = requestAnimationFrame(sync)
+    return () => cancelAnimationFrame(frame)
+  })
   useEffect(() => {
     const el = trackRef.current
     if (!el) {
