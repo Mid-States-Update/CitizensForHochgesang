@@ -1,10 +1,9 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import {PortableText} from '@portabletext/react'
 import {FaBullhorn, FaCalendarAlt, FaHandsHelping, FaNewspaper, FaVideo, FaVoteYea} from 'react-icons/fa'
 
+import {DistrictMapV2} from '@/components/district-map-v2'
 import {ElectionCountdown} from '@/components/election-countdown'
-import {mapEmbedBlockType} from '@/components/map-embed-block-type'
 import {CmsLink} from '@/components/cms-link'
 import {MidPageCta} from '@/components/mid-page-cta'
 import {PageEffects} from '@/components/page-effects'
@@ -16,7 +15,10 @@ import {resolveCmsIcon} from '@/lib/cms/icon-map'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
 import {extractBlocksOfType} from '@/lib/cms/portable-split'
 import {isPageEnabled} from '@/lib/cms/types'
+import {geoTagsIn} from '@/lib/geo-tags'
 import {
+  getAllPosts,
+  getCityPages,
   getCountyPages,
   getFundraisingLinks,
   getHomePageSettings,
@@ -62,7 +64,7 @@ function resolveActionClass(style: 'primary' | 'outline' | 'accent' | undefined)
 }
 
 export default async function Home() {
-  const [settings, home, posts, events, mediaLinks, fundraisingLinks, pageVisualSettings, countyPages] =
+  const [settings, home, posts, events, mediaLinks, fundraisingLinks, pageVisualSettings, countyPages, cityPages, allPosts] =
     await Promise.all([
       getSiteSettings(),
       getHomePageSettings(),
@@ -72,6 +74,8 @@ export default async function Home() {
       getFundraisingLinks(),
       getPageVisualSettings('home'),
       getCountyPages(),
+      getCityPages(),
+      getAllPosts(),
     ])
 
   // Prefer visuals embedded in homePageSettings, fall back to standalone query
@@ -98,12 +102,12 @@ export default async function Home() {
   const showEvents = isPageEnabled(settings.pageVisibility, 'events') && events.length > 0
   const showMedia = isPageEnabled(settings.pageVisibility, 'media') && mediaLinks.length > 0
 
-  // The district map lives inside the Why I'm Running body in Sanity; pull it
-  // out so the story stays tight and the map gets its own section near events.
-  const {extracted: districtMapBlocks, rest: whyRunningStory} = extractBlocksOfType(
-    home.whyRunningBody ?? [],
-    'mapEmbed',
-  )
+  // The old v1 map embed may still sit inside the Why I'm Running body in
+  // Sanity; strip it so the story stays tight. The map section below renders
+  // the code-driven district map v2 instead.
+  const {rest: whyRunningStory} = extractBlocksOfType(home.whyRunningBody ?? [], 'mapEmbed')
+  const homeGeo = geoTagsIn(allPosts.flatMap((post) => post.tags))
+  const newsPlaces = [...homeGeo.counties, ...homeGeo.cities]
   const nextEvent = showEvents ? events[0] : undefined
   const featuredMedia = pickFeaturedMedia(mediaLinks)
 
@@ -414,25 +418,23 @@ export default async function Home() {
       ) : null}
 
       {/* ── 8. Our District map ── */}
-      {districtMapBlocks.length > 0 ? (
-        <section className="homepage-feed-section">
-          <div className="card flex flex-col gap-4">
-            <p className="eyebrow">Our district</p>
-            <h2 className="section-title">Six counties, one district</h2>
-            <PortableText value={districtMapBlocks as never} components={{types: {...mapEmbedBlockType}}} />
-            {countyPages.length > 0 ? (
-              <div className="county-strip">
-                {countyPages.map((county) => (
-                  <Link key={county.slug} className="county-strip-item" href={`/district/${county.slug}`}>
-                    <span className="county-strip-name">{county.title}</span>
-                    <span className="county-strip-towns">{county.townsLine}</span>
-                  </Link>
-                ))}
-              </div>
-            ) : null}
-          </div>
-        </section>
-      ) : null}
+      <section className="homepage-feed-section">
+        <div className="card flex flex-col gap-4">
+          <p className="eyebrow">Our district</p>
+          <h2 className="section-title">Six counties, one district</h2>
+          <DistrictMapV2 counties={countyPages} cities={cityPages} newsPlaces={newsPlaces} />
+          {countyPages.length > 0 ? (
+            <div className="county-strip">
+              {countyPages.map((county) => (
+                <Link key={county.slug} className="county-strip-item" href={`/district/${county.slug}`}>
+                  <span className="county-strip-name">{county.title}</span>
+                  <span className="county-strip-towns">{county.townsLine}</span>
+                </Link>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      </section>
 
       {/* ── 9. Mid-Page CTA ── */}
       <MidPageCta
