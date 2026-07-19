@@ -62,6 +62,18 @@ export function SiteFooter({settings}: SiteFooterProps) {
       {settings.socialLinks.length > 0 ? (
         <div className="mx-auto w-full max-w-6xl px-6 pb-8">
           <div className="footer-social-row flex flex-wrap items-center gap-x-4 gap-y-3 text-sm">
+            {/* Gradient definition the Instagram glyph fills itself with */}
+            <svg aria-hidden width="0" height="0" className="absolute">
+              <defs>
+                <radialGradient id="ig-brand-gradient" cx="30%" cy="107%" r="150%">
+                  <stop offset="0%" stopColor="#fdf497" />
+                  <stop offset="5%" stopColor="#fdf497" />
+                  <stop offset="45%" stopColor="#fd5949" />
+                  <stop offset="60%" stopColor="#d6249f" />
+                  <stop offset="90%" stopColor="#285aeb" />
+                </radialGradient>
+              </defs>
+            </svg>
             <p className="font-semibold text-[color:var(--color-ink)]">Follow us on social media</p>
             <ul className="flex flex-wrap items-center gap-3">
               {settings.socialLinks.map((item) => (
@@ -89,19 +101,19 @@ function SocialIcon({label}: {label: string}) {
   const lower = label.toLowerCase()
 
   if (lower.includes('facebook')) {
-    return <FaFacebook aria-hidden />
+    return <FaFacebook aria-hidden className="social-icon-facebook" />
   }
 
   if (lower.includes('youtube')) {
-    return <FaYoutube aria-hidden />
+    return <FaYoutube aria-hidden className="social-icon-youtube" />
   }
 
   if (lower.includes('instagram')) {
-    return <FaInstagram aria-hidden />
+    return <FaInstagram aria-hidden className="social-icon-instagram" />
   }
 
   if (lower.includes('tiktok')) {
-    return <FaTiktok aria-hidden />
+    return <FaTiktok aria-hidden className="social-icon-tiktok" />
   }
 
   return <FaGlobe aria-hidden />

@@ -2748,6 +2748,22 @@
   background: color-mix(in srgb, var(--color-accent) 14%, var(--color-surface));
 }
 
+/* Brand colors for the social glyphs. The Instagram fill references the
+ * radial gradient the footer defines inline; TikTok's mark follows the
+ * theme's ink so it stays black-on-light / white-on-dark. */
+.social-icon-facebook {
+  color: #1877f2;
+}
+.social-icon-youtube {
+  color: #ff0000;
+}
+.social-icon-instagram {
+  fill: url(#ig-brand-gradient);
+}
+.social-icon-tiktok {
+  color: var(--color-ink);
+}
+
 .map2-stage {
   position: relative;
 }
