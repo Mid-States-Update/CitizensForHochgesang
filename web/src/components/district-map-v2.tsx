@@ -142,33 +142,17 @@ export function DistrictMapV2({
   return (
     <div className="map2">
       <div className="map2-stage" ref={stageRef}>
-        {view.level === 'county' && zoomedShape ? (
-          <button
-            type="button"
-            className="map2-back"
-            onClick={() => setView({level: 'district'})}
-          >
-            ← Back to the district
-          </button>
-        ) : null}
+        {/* When zoomed, clicking anywhere that is not a linked town zooms
+         * back out: the county shape, the padding, and the letterboxed
+         * margins all bubble here. Escape and the county path's keyboard
+         * handler cover non-pointer users. */}
         <svg
           viewBox={`${box.x} ${box.y} ${box.width} ${box.height}`}
           role="group"
           aria-label="Senate District 48 county map"
-          className="map2-svg"
+          className={`map2-svg ${view.level === 'county' ? 'map2-svg-zoomed' : ''}`}
+          onClick={view.level === 'county' ? () => setView({level: 'district'}) : undefined}
         >
-        {view.level === 'county' ? (
-          <rect
-            x={box.x}
-            y={box.y}
-            width={box.width}
-            height={box.height}
-            className="map2-backdrop"
-            aria-label="Zoom back out to the district"
-            role="button"
-            onClick={() => setView({level: 'district'})}
-          />
-        ) : null}
         <g className="map2-zoom">
           {shapes.map(({region, path, label}) => {
             const isZoomed = view.level === 'county' && view.slug === region.slug
@@ -350,7 +334,7 @@ export function DistrictMapV2({
             <p className="map2-panel-hint">
               {view.level === 'district'
                 ? 'Click the county to zoom in; click its name for county news.'
-                : 'County and city names link to news filtered to that place.'}
+                : 'City names link to news for that place. Click anywhere else on the map to zoom back out.'}
             </p>
           </>
         ) : (
