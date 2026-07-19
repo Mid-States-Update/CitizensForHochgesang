@@ -5,6 +5,7 @@ import Image from 'next/image'
 
 import {ArticleContent} from '@/components/article-content'
 import {ArticleSceneObserver} from '@/components/article-scene-observer'
+import {ChipTrack} from '@/components/chip-track'
 import {PageEffects} from '@/components/page-effects'
 import {formatDate} from '@/lib/cms/format'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
@@ -82,19 +83,18 @@ export default async function PostPage({params}: PostPageProps) {
           ) : null}
           {post.excerpt ? <p className="text-base text-[color:var(--color-muted)]">{post.excerpt}</p> : null}
           {post.tags.length > 0 ? (
-            <ul className="chip-track">
+            <ChipTrack ariaLabel={`Tags for ${post.title}`}>
               {post.tags.map((tag) => (
-                <li key={`${post.slug}-${tag}`}>
-                  <Link
-                    href={`/news?tag=${encodeURIComponent(tag)}`}
-                    className="pill-badge"
-                    aria-label={`See all articles tagged ${tag}`}
-                  >
-                    {tag}
-                  </Link>
-                </li>
+                <Link
+                  key={`${post.slug}-${tag}`}
+                  href={`/news?tag=${encodeURIComponent(tag)}`}
+                  className="pill-badge"
+                  aria-label={`See all articles tagged ${tag}`}
+                >
+                  {tag}
+                </Link>
               ))}
-            </ul>
+            </ChipTrack>
           ) : null}
           <ArticleContent body={post.body} />
           {storyExperience.length > 0 ? (

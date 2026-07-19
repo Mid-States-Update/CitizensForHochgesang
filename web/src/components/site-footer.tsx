@@ -21,10 +21,17 @@ export function SiteFooter({settings}: SiteFooterProps) {
   return (
     <footer className="border-t border-[color:var(--color-border)] bg-[color:var(--color-surface)]">
       <div className="mx-auto grid w-full max-w-6xl gap-6 px-6 py-8 text-sm text-[color:var(--color-muted)] sm:grid-cols-3">
-        <div className="space-y-2">
+        <div className="min-w-0 space-y-2">
           <p className="font-semibold text-[color:var(--color-ink)]">{settings.siteTitle}</p>
           <p>{settings.tagline}</p>
-          {settings.contactEmail ? <p>Contact: {settings.contactEmail}</p> : null}
+          {settings.contactEmail ? (
+            <p className="break-words">
+              Contact:{' '}
+              <a className="hover:underline" href={`mailto:${settings.contactEmail}`}>
+                {settings.contactEmail}
+              </a>
+            </p>
+          ) : null}
           <div className="flex flex-wrap gap-3 pt-2">
             {settings.donateUrl ? (
               <CmsLink className="btn btn-accent btn-sm" href={settings.donateUrl}>

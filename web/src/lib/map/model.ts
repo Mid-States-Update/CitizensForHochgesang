@@ -240,3 +240,17 @@ export function ringsToPath(
     })
     .join(' ')
 }
+
+/**
+ * SVG font size (in viewBox units) that renders city labels at a constant
+ * on-screen pixel size, mirroring the non-scaling strokes. Falls back to a
+ * 760px container before the client has measured the real one.
+ */
+export function cityLabelFontUnits(
+  viewBoxWidth: number,
+  containerWidth: number,
+  targetPx: number
+): number {
+  const width = containerWidth > 0 ? containerWidth : 760
+  return (targetPx * viewBoxWidth) / width
+}

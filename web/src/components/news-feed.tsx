@@ -196,16 +196,18 @@ export function NewsFeed({posts}: NewsFeedProps) {
 
   return (
     <section className="grid gap-6">
-      <div className="flex items-start gap-3 rounded-2xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)]/70 p-4">
-        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+      {/* Controls row on top, chips on their own full-width line: the chip
+          track can never again be squeezed out by the search + sort widgets. */}
+      <div className="flex flex-col gap-3 rounded-2xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)]/70 p-4">
+        <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--color-muted)]">Filter tags</span>
-          <label className="tag-search-shell" aria-label="Search articles and tags">
+          <label className="tag-search-shell min-w-32 flex-1" aria-label="Search articles and tags">
             <input
               type="search"
               value={tagQuery}
               onChange={(event) => setTagQuery(event.target.value)}
               placeholder="Search articles"
-              className="tag-search-input"
+              className="tag-search-input w-full"
             />
           </label>
           {selectedTag ? (
@@ -219,41 +221,41 @@ export function NewsFeed({posts}: NewsFeedProps) {
               <span aria-hidden>✕</span>
             </button>
           ) : null}
-          <ChipTrack ariaLabel="News tags sorted by number of posts">
-            <button
-              type="button"
-              onClick={() => applyTagFilter(null)}
-              className={`pill-badge ${selectedTag === null ? 'pill-badge-active' : ''}`}
+          <label className="ml-auto flex shrink-0 items-center gap-2 text-sm text-[color:var(--color-muted)]">
+            <span>Sort</span>
+            <select
+              className="w-28 rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-3 py-1.5 text-sm text-[color:var(--color-ink)] sm:w-36"
+              value={sortMode}
+              onChange={(event) => applySortMode(event.target.value as SortMode)}
             >
-              <span>All</span>
-              {posts.length >= 2 ? <span className="pill-badge-count">{posts.length}</span> : null}
-            </button>
-            {filteredTagCounts.map(({tag, count}) => (
-              <button
-                key={tag}
-                type="button"
-                onClick={() => applyTagFilter(selectedTag === tag ? null : tag)}
-                className={`pill-badge ${selectedTag === tag ? 'pill-badge-active' : ''}`}
-              >
-                <span>{tag}</span>
-                {count >= 2 ? <span className="pill-badge-count">{count}</span> : null}
-              </button>
-            ))}
-          </ChipTrack>
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+              <option value="title">Title A-Z</option>
+            </select>
+          </label>
         </div>
 
-        <label className="flex shrink-0 items-center gap-2 text-sm text-[color:var(--color-muted)]">
-          <span>Sort</span>
-          <select
-            className="w-28 rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-3 py-1.5 text-sm text-[color:var(--color-ink)] sm:w-36"
-            value={sortMode}
-            onChange={(event) => applySortMode(event.target.value as SortMode)}
+        <ChipTrack ariaLabel="News tags sorted by number of posts">
+          <button
+            type="button"
+            onClick={() => applyTagFilter(null)}
+            className={`pill-badge ${selectedTag === null ? 'pill-badge-active' : ''}`}
           >
-            <option value="newest">Newest</option>
-            <option value="oldest">Oldest</option>
-            <option value="title">Title A-Z</option>
-          </select>
-        </label>
+            <span>All</span>
+            {posts.length >= 2 ? <span className="pill-badge-count">{posts.length}</span> : null}
+          </button>
+          {filteredTagCounts.map(({tag, count}) => (
+            <button
+              key={tag}
+              type="button"
+              onClick={() => applyTagFilter(selectedTag === tag ? null : tag)}
+              className={`pill-badge ${selectedTag === tag ? 'pill-badge-active' : ''}`}
+            >
+              <span>{tag}</span>
+              {count >= 2 ? <span className="pill-badge-count">{count}</span> : null}
+            </button>
+          ))}
+        </ChipTrack>
       </div>
 
       {hasGeoFilters ? (
@@ -324,19 +326,18 @@ export function NewsFeed({posts}: NewsFeedProps) {
                 </p>
 
                 {post.tags.length > 0 ? (
-                  <ul className="chip-track">
+                  <ChipTrack ariaLabel={`Tags for ${post.title}`}>
                     {post.tags.map((tag) => (
-                      <li key={`${post.slug}-${tag}`}>
-                        <button
-                          type="button"
-                          onClick={() => applyTagFilter(selectedTag === tag ? null : tag)}
-                          className={`pill-badge ${selectedTag === tag ? 'pill-badge-active' : ''}`}
-                        >
-                          {tag}
-                        </button>
-                      </li>
+                      <button
+                        key={`${post.slug}-${tag}`}
+                        type="button"
+                        onClick={() => applyTagFilter(selectedTag === tag ? null : tag)}
+                        className={`pill-badge ${selectedTag === tag ? 'pill-badge-active' : ''}`}
+                      >
+                        {tag}
+                      </button>
                     ))}
-                  </ul>
+                  </ChipTrack>
                 ) : null}
               </div>
             </div>

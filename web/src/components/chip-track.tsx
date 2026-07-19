@@ -56,7 +56,7 @@ export function ChipTrack({ariaLabel, children}: ChipTrackProps) {
   const overflowing = canPrev || canNext
 
   return (
-    <div className="chip-track-shell">
+    <div className="chip-track-shell" data-can-prev={canPrev} data-can-next={canNext}>
       {overflowing ? (
         <button type="button" className="chip-nav" aria-label="Scroll list left" disabled={!canPrev} onClick={() => page(-1)}>
           <FaChevronLeft aria-hidden />

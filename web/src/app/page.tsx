@@ -308,8 +308,10 @@ export default async function Home() {
              towns, and filtered news ── */}
       <section className="homepage-feed-section">
         <div className="card flex flex-col gap-4">
-          <p className="eyebrow">Our district</p>
-          <h2 className="section-title">Six counties, one district</h2>
+          <div className="map-section-heading">
+            <p className="eyebrow">Our district</p>
+            <h2 className="section-title">Six counties, one district</h2>
+          </div>
           <DistrictMapV2 counties={countyPages} cities={cityPages} newsPlaces={newsPlaces} />
           {countyPages.length > 0 ? (
             <div className="county-strip homepage-scroll-row">

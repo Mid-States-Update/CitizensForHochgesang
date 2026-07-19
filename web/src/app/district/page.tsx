@@ -30,9 +30,12 @@ export default async function DistrictIndexPage() {
     <main className={getPageShellClasses(pageVisualSettings)} {...getPageShellDataAttributes(pageVisualSettings)}>
       <PageEffects visuals={pageVisualSettings} />
       <section className="card flex flex-col gap-4">
-        <p className="eyebrow">Our district</p>
-        <h1 className="section-title">Six counties, one district</h1>
-        <p className="max-w-3xl text-base text-[color:var(--color-muted)]">
+        <div className="map-section-heading">
+          <p className="eyebrow">Our district</p>
+          <h1 className="section-title">Six counties, one district</h1>
+        </div>
+        {/* On phones the map leads and this description follows it (CSS order) */}
+        <p className="district-intro max-w-3xl text-base text-[color:var(--color-muted)]">
           Indiana Senate District 48 covers Crawford, Dubois, Gibson, Perry, Pike, and Spencer
           counties. Every county has its own page here, written from public records and from what
           neighbors say in person. Click a county to zoom in; towns with news are clickable too.

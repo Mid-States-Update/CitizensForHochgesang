@@ -1,6 +1,6 @@
 'use client'
 
-import {useEffect, useMemo, useState} from 'react'
+import {useEffect, useMemo, useRef, useState} from 'react'
 import Link from 'next/link'
 
 import district48Data from './indiana-district-map-coordinates'
@@ -8,6 +8,7 @@ import {district48Cities} from './district48-cities'
 import {
   buildMapModel,
   chaikinSmooth,
+  cityLabelFontUnits,
   newsHrefForPlace,
   planCityLabels,
   polygonCentroid,
@@ -15,7 +16,6 @@ import {
   projectedRect,
   ringsToPath,
   viewportFor,
-  zoomTransformFor,
   type Bounds,
   type MapRegionModel,
 } from '../lib/map/model'
@@ -101,11 +101,32 @@ export function DistrictMapV2({
     view.level === 'county'
       ? shapes.find((s) => s.region.slug === view.slug) ?? null
       : null
-  const zoom = zoomedShape
-    ? zoomTransformFor(zoomedShape.zoomRect, viewport)
-    : {scale: 1, tx: 0, ty: 0}
 
   const focused = zoomedShape?.region ?? selected
+
+  /* Zooming swaps the viewBox to the county's own rect, so the SVG's
+   * intrinsic aspect becomes the county's and the element grows taller on
+   * narrow screens instead of staying letterboxed inside the wide district
+   * box. Labels stay a constant on-screen size via the measured width. */
+  const stageRef = useRef<HTMLDivElement | null>(null)
+  const [containerWidth, setContainerWidth] = useState(0)
+  useEffect(() => {
+    const el = stageRef.current
+    if (!el) return
+    const observer = new ResizeObserver((entries) => {
+      const width = entries[0]?.contentRect.width
+      if (width) setContainerWidth(width)
+    })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  const box = zoomedShape
+    ? zoomedShape.zoomRect
+    : {x: 0, y: 0, width: viewport.width, height: viewport.height}
+  const cityFontSize = zoomedShape
+    ? cityLabelFontUnits(zoomedShape.zoomRect.width, containerWidth, 13)
+    : 13
 
   // Unzoom is always one gesture away: Escape, the backdrop, the Back
   // button, or clicking the zoomed county again.
@@ -120,39 +141,35 @@ export function DistrictMapV2({
 
   return (
     <div className="map2">
-      {view.level === 'county' && zoomedShape ? (
-        <button
-          type="button"
-          className="map2-back"
-          onClick={() => setView({level: 'district'})}
+      <div className="map2-stage" ref={stageRef}>
+        {view.level === 'county' && zoomedShape ? (
+          <button
+            type="button"
+            className="map2-back"
+            onClick={() => setView({level: 'district'})}
+          >
+            ← Back to the district
+          </button>
+        ) : null}
+        <svg
+          viewBox={`${box.x} ${box.y} ${box.width} ${box.height}`}
+          role="group"
+          aria-label="Senate District 48 county map"
+          className="map2-svg"
         >
-          ← Back to the district
-        </button>
-      ) : null}
-      <svg
-        viewBox={`0 0 ${viewport.width} ${viewport.height}`}
-        role="group"
-        aria-label="Senate District 48 county map"
-        className="map2-svg"
-      >
         {view.level === 'county' ? (
           <rect
-            x={0}
-            y={0}
-            width={viewport.width}
-            height={viewport.height}
+            x={box.x}
+            y={box.y}
+            width={box.width}
+            height={box.height}
             className="map2-backdrop"
             aria-label="Zoom back out to the district"
             role="button"
             onClick={() => setView({level: 'district'})}
           />
         ) : null}
-        <g
-          className="map2-zoom"
-          style={{
-            transform: `translate(${zoom.tx}px, ${zoom.ty}px) scale(${zoom.scale})`,
-          }}
-        >
+        <g className="map2-zoom">
           {shapes.map(({region, path, label}) => {
             const isZoomed = view.level === 'county' && view.slug === region.slug
             const isSelected = focused?.slug === region.slug
@@ -254,7 +271,7 @@ export function DistrictMapV2({
                       x={cx}
                       y={cy}
                       className={`map2-city-label ${plan?.labeled ? '' : 'map2-city-label-hover'}`}
-                      style={{fontSize: `${13 / zoom.scale}px`}}
+                      style={{fontSize: `${cityFontSize}px`}}
                     >
                       {city.name}
                     </text>
@@ -296,7 +313,8 @@ export function DistrictMapV2({
                 })
             : null}
         </g>
-      </svg>
+        </svg>
+      </div>
 
       <div className="map2-panel" aria-live="polite">
         {focused ? (

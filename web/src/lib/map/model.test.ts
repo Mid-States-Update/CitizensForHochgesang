@@ -12,6 +12,7 @@ import {
   slugForCountyName,
   viewportFor,
   zoomTransformFor,
+  cityLabelFontUnits,
 } from './model'
 import type {CityPageSummary, CountyPageSummary} from '../cms/types'
 
@@ -224,5 +225,23 @@ describe('ringsToPath', () => {
       viewport
     )
     expect(path).toBe('M0,100 L200,100 L200,0 Z')
+  })
+})
+
+// cityLabelFontUnits: labels render at a constant on-screen size, like the
+// non-scaling strokes, regardless of container width or zoom depth
+describe('cityLabelFontUnits', () => {
+  it('renders the target px size at any container width', () => {
+    // font units * (containerPx / viewBoxUnits) = target px
+    expect(cityLabelFontUnits(300, 760, 13) * (760 / 300)).toBeCloseTo(13)
+    expect(cityLabelFontUnits(300, 390, 13) * (390 / 300)).toBeCloseTo(13)
+  })
+
+  it('scales with the zoomed viewBox width', () => {
+    expect(cityLabelFontUnits(150, 760, 13)).toBeCloseTo(cityLabelFontUnits(300, 760, 13) / 2)
+  })
+
+  it('falls back sanely when the container is unmeasured', () => {
+    expect(cityLabelFontUnits(300, 0, 13)).toBeGreaterThan(0)
   })
 })
