@@ -2740,6 +2740,14 @@
   }
 }
 
+/* Footer social row: brighter than the footer around it so it stands out. */
+.footer-social-row {
+  border-radius: 1rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 35%, var(--color-border));
+  background: color-mix(in srgb, var(--color-accent) 14%, var(--color-surface));
+}
+
 .map2-stage {
   position: relative;
 }

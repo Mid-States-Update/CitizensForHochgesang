@@ -10,7 +10,7 @@ import {formatDate} from '@/lib/cms/format'
 import {getSanityImageUrl} from '@/lib/cms/image-url'
 import type {PostSummary} from '@/lib/cms/types'
 import {geoTagsIn} from '@/lib/geo-tags'
-import {initialSelectedTag, isPlaceTag, postMatchesQuery} from '@/lib/news-filter'
+import {categoryForTag, initialSelectedTag, isPlaceTag, postMatchesQuery, type TagCategory} from '@/lib/news-filter'
 
 const RATIO_DIMENSIONS: Record<string, {width: number; height: number; className: string}> = {
   '16:9': {width: 1600, height: 900, className: 'aspect-[16/9]'},
@@ -72,6 +72,18 @@ export function NewsFeed({posts}: NewsFeedProps) {
       posts.flatMap((post) => post.tags)
     )
   )
+  // Open on the category holding the preselected tag, so a map link like
+  // ?place=Dubois County lands with its chip visible.
+  const [category, setCategory] = useState<TagCategory>(() =>
+    categoryForTag(
+      initialSelectedTag(
+        searchParams.get('place'),
+        searchParams.get('tag'),
+        posts.flatMap((post) => post.tags)
+      ),
+      geoTagsIn(posts.flatMap((post) => post.tags))
+    )
+  )
   const [tagQuery, setTagQuery] = useState('')
   const [sortMode, setSortMode] = useState<SortMode>('newest')
   const [visibleCount, setVisibleCount] = useState(6)
@@ -111,22 +123,28 @@ export function NewsFeed({posts}: NewsFeedProps) {
       .map(([tag, count]) => ({tag, count}))
   }, [posts])
 
-  // The tags row shows topics only; places live in the Filter-by-place row.
-  const filteredTagCounts = useMemo(() => {
-    const topicCounts = tagCounts.filter(({tag}) => !isPlaceTag(tag))
-    const query = tagQuery.trim().toLowerCase()
-    if (!query) {
-      return topicCounts
-    }
-
-    return topicCounts.filter(({tag}) => tag.toLowerCase().includes(query))
-  }, [tagCounts, tagQuery])
-
   const geoFilters = useMemo(
     () => geoTagsIn(posts.flatMap((post) => post.tags)),
     [posts]
   )
-  const hasGeoFilters = geoFilters.counties.length > 0 || geoFilters.cities.length > 0
+
+  // One chip row, grouped by the category selector: Topics carries every
+  // non-place tag; Counties and Towns carry the canonical place names.
+  const filteredTagCounts = useMemo(() => {
+    const countByTag = new Map(tagCounts.map(({tag, count}) => [tag.toLowerCase(), count]))
+    const chips =
+      category === 'counties'
+        ? geoFilters.counties.map((tag) => ({tag, count: countByTag.get(tag.toLowerCase()) ?? 0}))
+        : category === 'towns'
+          ? geoFilters.cities.map((tag) => ({tag, count: countByTag.get(tag.toLowerCase()) ?? 0}))
+          : tagCounts.filter(({tag}) => !isPlaceTag(tag))
+    const query = tagQuery.trim().toLowerCase()
+    if (!query) {
+      return chips
+    }
+
+    return chips.filter(({tag}) => tag.toLowerCase().includes(query))
+  }, [tagCounts, tagQuery, category, geoFilters])
 
   const preparedPosts = useMemo(
     () =>
@@ -200,7 +218,7 @@ export function NewsFeed({posts}: NewsFeedProps) {
           track can never again be squeezed out by the search + sort widgets. */}
       <div className="flex flex-col gap-3 rounded-2xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)]/70 p-4">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--color-muted)]">Filter tags</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--color-muted)]">Filter</span>
           <label className="tag-search-shell min-w-32 flex-1" aria-label="Search articles and tags">
             <input
               type="search"
@@ -235,48 +253,40 @@ export function NewsFeed({posts}: NewsFeedProps) {
           </label>
         </div>
 
-        <ChipTrack ariaLabel="News tags sorted by number of posts">
-          <button
-            type="button"
-            onClick={() => applyTagFilter(null)}
-            className={`pill-badge ${selectedTag === null ? 'pill-badge-active' : ''}`}
+        <div className="flex items-center gap-2">
+          <select
+            aria-label="Tag category"
+            className="w-28 shrink-0 rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-3 py-1.5 text-sm text-[color:var(--color-ink)]"
+            value={category}
+            onChange={(event) => setCategory(event.target.value as TagCategory)}
           >
-            <span>All</span>
-            {posts.length >= 2 ? <span className="pill-badge-count">{posts.length}</span> : null}
-          </button>
-          {filteredTagCounts.map(({tag, count}) => (
+            <option value="topics">Topics</option>
+            <option value="counties">Counties</option>
+            <option value="towns">Towns</option>
+          </select>
+          <ChipTrack ariaLabel={`Filter news by ${category === 'topics' ? 'topic' : category === 'counties' ? 'county' : 'town'}`}>
             <button
-              key={tag}
               type="button"
-              onClick={() => applyTagFilter(selectedTag === tag ? null : tag)}
-              className={`pill-badge ${selectedTag === tag ? 'pill-badge-active' : ''}`}
+              onClick={() => applyTagFilter(null)}
+              className={`pill-badge ${selectedTag === null ? 'pill-badge-active' : ''}`}
             >
-              <span>{tag}</span>
-              {count >= 2 ? <span className="pill-badge-count">{count}</span> : null}
+              <span>All</span>
+              {posts.length >= 2 ? <span className="pill-badge-count">{posts.length}</span> : null}
             </button>
-          ))}
-        </ChipTrack>
-      </div>
-
-      {hasGeoFilters ? (
-        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)]/70 p-4">
-          <span className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--color-muted)]">
-            Filter by place
-          </span>
-          <ChipTrack ariaLabel="Filter news by county or town">
-            {[...geoFilters.counties, ...geoFilters.cities].map((place) => (
+            {filteredTagCounts.map(({tag, count}) => (
               <button
-                key={place}
+                key={tag}
                 type="button"
-                onClick={() => applyTagFilter(selectedTag === place ? null : place)}
-                className={`pill-badge ${selectedTag === place ? 'pill-badge-active' : ''}`}
+                onClick={() => applyTagFilter(selectedTag === tag ? null : tag)}
+                className={`pill-badge ${selectedTag === tag ? 'pill-badge-active' : ''}`}
               >
-                <span>{place}</span>
+                <span>{tag}</span>
+                {count >= 2 ? <span className="pill-badge-count">{count}</span> : null}
               </button>
             ))}
           </ChipTrack>
         </div>
-      ) : null}
+      </div>
 
       {visiblePosts.map((post) => {
         const layoutClass = LAYOUT_CLASSNAMES[post.layout] ?? LAYOUT_CLASSNAMES.stacked

@@ -1,6 +1,26 @@
 import {describe, expect, it} from 'vitest'
 
-import {initialSelectedTag, isPlaceTag, postMatchesQuery} from './news-filter'
+import {categoryForTag, initialSelectedTag, isPlaceTag, postMatchesQuery} from './news-filter'
+
+describe('categoryForTag', () => {
+  const geo = {counties: ['Dubois County', 'Gibson County'], cities: ['Jasper', 'Tell City']}
+
+  it('sorts counties, towns, and topics into their categories', () => {
+    expect(categoryForTag('Dubois County', geo)).toBe('counties')
+    expect(categoryForTag('Jasper', geo)).toBe('towns')
+    expect(categoryForTag('mid-states-corridor', geo)).toBe('topics')
+  })
+
+  it('matches place names case-insensitively', () => {
+    expect(categoryForTag('gibson county', geo)).toBe('counties')
+    expect(categoryForTag('tell city', geo)).toBe('towns')
+  })
+
+  it('defaults to topics for null or unknown tags', () => {
+    expect(categoryForTag(null, geo)).toBe('topics')
+    expect(categoryForTag('Narnia', geo)).toBe('topics')
+  })
+})
 
 describe('isPlaceTag', () => {
   it('recognizes canonical county and town tags', () => {

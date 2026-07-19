@@ -2,7 +2,8 @@ import {CmsLink} from '@/components/cms-link'
 import {DEFAULT_NAV_ITEMS, normalizeNavItems} from '@/components/site-nav-items'
 import {filterNavByVisibility} from '@/components/site-nav-visibility'
 import type {SiteSettings} from '@/lib/cms/types'
-import {FaDonate, FaFacebook, FaGlobe, FaHandsHelping, FaYoutube} from 'react-icons/fa'
+import {FaFacebook, FaGlobe, FaInstagram, FaYoutube} from 'react-icons/fa'
+import {FaTiktok} from 'react-icons/fa6'
 
 type SiteFooterProps = {
   settings: SiteSettings
@@ -22,7 +23,7 @@ export function SiteFooter({settings}: SiteFooterProps) {
     <footer className="border-t border-[color:var(--color-border)] bg-[color:var(--color-surface)]">
       {/* Two columns: identity gets the wider track so the contact email
           fits on one line; socials live in their own full-width row below. */}
-      <div className="mx-auto grid w-full max-w-6xl gap-6 px-6 py-8 text-sm text-[color:var(--color-muted)] md:grid-cols-[1.3fr_1fr]">
+      <div className="mx-auto grid w-full max-w-6xl gap-6 px-6 py-8 text-sm text-[color:var(--color-muted)] sm:grid-cols-[1.3fr_1fr]">
         <div className="min-w-0 space-y-2">
           <p className="font-semibold text-[color:var(--color-ink)]">{settings.siteTitle}</p>
           <p>{settings.tagline}</p>
@@ -34,20 +35,6 @@ export function SiteFooter({settings}: SiteFooterProps) {
               </a>
             </p>
           ) : null}
-          <div className="flex flex-wrap gap-3 pt-2">
-            {settings.donateUrl ? (
-              <CmsLink className="btn btn-accent btn-sm" href={settings.donateUrl}>
-                <FaDonate aria-hidden />
-                Donate
-              </CmsLink>
-            ) : null}
-            {settings.volunteerUrl ? (
-              <CmsLink className="btn btn-primary btn-sm" href={settings.volunteerUrl}>
-                <FaHandsHelping aria-hidden />
-                Volunteer
-              </CmsLink>
-            ) : null}
-          </div>
         </div>
 
         {exploreItems.length > 0 && (
@@ -74,7 +61,7 @@ export function SiteFooter({settings}: SiteFooterProps) {
 
       {settings.socialLinks.length > 0 ? (
         <div className="mx-auto w-full max-w-6xl px-6 pb-8">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-2xl border border-[color:var(--color-border)] p-4 text-sm text-[color:var(--color-muted)]">
+          <div className="footer-social-row flex flex-wrap items-center gap-x-4 gap-y-3 text-sm">
             <p className="font-semibold text-[color:var(--color-ink)]">Follow us on social media</p>
             <ul className="flex flex-wrap items-center gap-3">
               {settings.socialLinks.map((item) => (
@@ -107,6 +94,14 @@ function SocialIcon({label}: {label: string}) {
 
   if (lower.includes('youtube')) {
     return <FaYoutube aria-hidden />
+  }
+
+  if (lower.includes('instagram')) {
+    return <FaInstagram aria-hidden />
+  }
+
+  if (lower.includes('tiktok')) {
+    return <FaTiktok aria-hidden />
   }
 
   return <FaGlobe aria-hidden />

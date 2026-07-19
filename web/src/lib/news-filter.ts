@@ -30,6 +30,29 @@ export function postMatchesQuery(post: SearchablePost, query: string): boolean {
     .includes(needle)
 }
 
+export type TagCategory = 'topics' | 'counties' | 'towns'
+
+/**
+ * Which chip group a tag belongs to, so the filter bar can open on the
+ * category that contains a preselected tag (e.g. arriving from a map link).
+ */
+export function categoryForTag(
+  tag: string | null,
+  geo: {counties: string[]; cities: string[]},
+): TagCategory {
+  if (!tag) {
+    return 'topics'
+  }
+  const lower = tag.toLowerCase()
+  if (geo.counties.some((county) => county.toLowerCase() === lower)) {
+    return 'counties'
+  }
+  if (geo.cities.some((city) => city.toLowerCase() === lower)) {
+    return 'towns'
+  }
+  return 'topics'
+}
+
 /**
  * Resolves ?place= (from the district map) and ?tag= (from article tag chips)
  * to a filter value. Canonical places always work; anything else counts only
