@@ -20,7 +20,9 @@ export function SiteFooter({settings}: SiteFooterProps) {
 
   return (
     <footer className="border-t border-[color:var(--color-border)] bg-[color:var(--color-surface)]">
-      <div className="mx-auto grid w-full max-w-6xl gap-6 px-6 py-8 text-sm text-[color:var(--color-muted)] sm:grid-cols-3">
+      {/* Two columns: identity gets the wider track so the contact email
+          fits on one line; socials live in their own full-width row below. */}
+      <div className="mx-auto grid w-full max-w-6xl gap-6 px-6 py-8 text-sm text-[color:var(--color-muted)] md:grid-cols-[1.3fr_1fr]">
         <div className="min-w-0 space-y-2">
           <p className="font-semibold text-[color:var(--color-ink)]">{settings.siteTitle}</p>
           <p>{settings.tagline}</p>
@@ -68,20 +70,25 @@ export function SiteFooter({settings}: SiteFooterProps) {
           </div>
         )}
 
-        <div className="space-y-2 sm:justify-self-end sm:text-right">
-          <p className="font-semibold text-[color:var(--color-ink)]">Follow</p>
-          <ul className="space-y-1">
-            {settings.socialLinks.map((item) => (
-              <li key={`${item.label}-${item.url}`}>
-                <CmsLink className="link-pill link-pill-support" href={item.url}>
-                  <SocialIcon label={item.label} />
-                  {item.label}
-                </CmsLink>
-              </li>
-            ))}
-          </ul>
-        </div>
       </div>
+
+      {settings.socialLinks.length > 0 ? (
+        <div className="mx-auto w-full max-w-6xl px-6 pb-8">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-2xl border border-[color:var(--color-border)] p-4 text-sm text-[color:var(--color-muted)]">
+            <p className="font-semibold text-[color:var(--color-ink)]">Follow us on social media</p>
+            <ul className="flex flex-wrap items-center gap-3">
+              {settings.socialLinks.map((item) => (
+                <li key={`${item.label}-${item.url}`}>
+                  <CmsLink className="link-pill link-pill-support" href={item.url}>
+                    <SocialIcon label={item.label} />
+                    {item.label}
+                  </CmsLink>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      ) : null}
 
       {/* Legal disclaimer — required by Indiana campaign finance law */}
       <div className="border-t border-[color:var(--color-border)] py-4 text-center text-xs text-[color:var(--color-muted)]">
