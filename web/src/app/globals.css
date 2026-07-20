@@ -7,19 +7,25 @@
 */
 :root,
 [data-theme='dark'] {
-  --color-canvas: #0f0a1b;
-  --color-surface: #1a1229;
-  --color-ink: #f6f2ff;
-  --color-muted: #c3b6e4;
-  --color-border: #3c2d59;
-  --color-accent: #b896ff;
-  --color-accent-contrast: #1b0f30;
-  --color-accent-2: #f2c45a;
-  --color-accent-2-contrast: #2d1c00;
-  --color-highlight: #2a1f42;
-  --page-gradient: radial-gradient(circle at top left, rgba(184, 150, 255, 0.18), transparent 45%),
-    radial-gradient(circle at 20% 20%, rgba(242, 196, 90, 0.12), transparent 38%),
-    linear-gradient(180deg, #0f0a1b 0%, #161025 48%, #120c20 100%);
+  /* Official brand palette, dark mode — see docs/brand-palette.md */
+  --color-canvas: #170b27;
+  --color-surface: #26173f;
+  --color-ink: #f3f0f9;
+  --color-muted: #b1a9c4;
+  --color-border: #4d3873;
+  --color-accent: #9964e5;
+  --color-accent-hover: #b082f7;
+  --color-accent-contrast: #161229;
+  --color-accent-2: #e8b543;
+  --color-accent-2-hover: #fdcd68;
+  --color-accent-2-contrast: #1a1029;
+  --color-highlight: #3a2560;
+  --color-link: #c9adfd;
+  --color-link-hover: #e0ceff;
+  --color-focus: #b6abfc;
+  --page-gradient: radial-gradient(circle at top left, rgba(153, 100, 229, 0.18), transparent 45%),
+    radial-gradient(circle at 20% 20%, rgba(232, 181, 67, 0.12), transparent 38%),
+    linear-gradient(180deg, #170b27 0%, #1f1136 48%, #190c2a 100%);
 
   --motion-shift-y: -4px;
   --motion-card-scale: 1.008;
@@ -81,19 +87,25 @@
 }
 
 [data-theme='light'] {
-  --color-canvas: #f7f3fb;
+  /* Official brand palette, light mode — see docs/brand-palette.md */
+  --color-canvas: #f1ecfa;
   --color-surface: #ffffff;
-  --color-ink: #2f1854;
-  --color-muted: #5c4a77;
-  --color-border: #ded1ee;
-  --color-accent: #4a2778;
+  --color-ink: #261b38;
+  --color-muted: #675e7a;
+  --color-border: #c9bce3;
+  --color-accent: #390d6b;
+  --color-accent-hover: #5a1c9a;
   --color-accent-contrast: #ffffff;
-  --color-accent-2: #e2ad33;
-  --color-accent-2-contrast: #2f1854;
-  --color-highlight: #f7e9b5;
-  --page-gradient: radial-gradient(circle at top left, rgba(74, 39, 120, 0.14), transparent 45%),
-    radial-gradient(circle at 20% 20%, rgba(226, 173, 51, 0.14), transparent 40%),
-    linear-gradient(180deg, #f7f3fb 0%, #fefdf8 45%, #f6f0ff 100%);
+  --color-accent-2: #e2a413;
+  --color-accent-2-hover: #a67c0a;
+  --color-accent-2-contrast: #1e142e;
+  --color-highlight: #e3daf3;
+  --color-link: #702db9;
+  --color-link-hover: #390d6b;
+  --color-focus: #9769dc;
+  --page-gradient: radial-gradient(circle at top left, rgba(57, 13, 107, 0.14), transparent 45%),
+    radial-gradient(circle at 20% 20%, rgba(226, 164, 19, 0.14), transparent 40%),
+    linear-gradient(180deg, #f1ecfa 0%, #faf7fe 45%, #ede6f8 100%);
 }
 
 .motion-calm {
@@ -284,7 +296,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-accent-2);
+    outline: 2px solid var(--color-focus);
     outline-offset: 3px;
   }
 
@@ -308,7 +320,7 @@
   }
 
   a:not(.btn):not(.nav-link):not(.link-pill):not(.icon-btn):not(.skip-link):not(.home-link) {
-    color: var(--color-accent);
+    color: var(--color-link);
     position: relative;
     text-decoration: none;
     background-image: linear-gradient(
@@ -323,7 +335,7 @@
 
   a:not(.btn):not(.nav-link):not(.link-pill):not(.icon-btn):not(.skip-link):not(.home-link):hover {
     background-size: 100% var(--text-link-thickness);
-    color: color-mix(in srgb, var(--color-accent) 84%, var(--color-accent-2) 16%);
+    color: var(--color-link-hover);
     text-decoration: none;
   }
 
@@ -569,7 +581,7 @@
     left: 50%;
     transform: translateX(-50%);
     margin-bottom: 0.5rem;
-    box-shadow: 0 -8px 32px rgba(47, 24, 84, 0.22);
+    box-shadow: 0 -8px 32px rgba(57, 13, 107, 0.22);
   }
 
   /* Desktop: nav panel opens downward from top bar */
@@ -582,7 +594,7 @@
       transform: none;
       margin-bottom: 0;
       margin-top: 0.5rem;
-      box-shadow: 0 14px 32px rgba(47, 24, 84, 0.22);
+      box-shadow: 0 14px 32px rgba(57, 13, 107, 0.22);
     }
   }
 
@@ -827,7 +839,7 @@
   }
 
   .card {
-    @apply rounded-3xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] p-5 shadow-[0_10px_30px_rgba(47,24,84,0.1)] transition sm:p-6;
+    @apply rounded-3xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] p-5 shadow-[0_10px_30px_rgba(57,13,107,0.1)] transition sm:p-6;
     transition-property: transform, box-shadow, border-color, background-color;
     transition-duration: 220ms;
     transition-timing-function: ease;
@@ -1563,7 +1575,7 @@
   }
 
   .link-soft {
-    @apply text-[color:var(--color-accent)];
+    @apply text-[color:var(--color-link)];
     position: relative;
     text-decoration: none;
     background-image: linear-gradient(currentColor, currentColor);
@@ -1575,7 +1587,7 @@
 
   .link-soft:hover {
     background-size: 100% 1px;
-    color: color-mix(in srgb, var(--color-accent) 84%, var(--color-accent-2) 16%);
+    color: var(--color-link-hover);
     text-decoration: none;
   }
 
@@ -1799,7 +1811,7 @@
   }
 
   .btn-primary {
-    @apply bg-[color:var(--color-accent)] text-[color:var(--color-accent-contrast)] shadow-[0_10px_25px_rgba(74,39,120,0.35)];
+    @apply bg-[color:var(--color-accent)] text-[color:var(--color-accent-contrast)] shadow-[0_10px_25px_rgba(57,13,107,0.35)];
   }
 
   .btn-outline {
@@ -1807,7 +1819,7 @@
   }
 
   .btn-accent {
-    @apply bg-[color:var(--color-accent-2)] text-[color:var(--color-accent-2-contrast)] shadow-[0_10px_25px_rgba(226,173,51,0.35)];
+    @apply bg-[color:var(--color-accent-2)] text-[color:var(--color-accent-2-contrast)] shadow-[0_10px_25px_rgba(226,164,19,0.35)];
   }
 
   .btn-sm {
@@ -1825,7 +1837,7 @@
   }
 
   .btn-primary:hover {
-    background-color: color-mix(in srgb, var(--color-accent) 88%, var(--color-accent-2) 12%);
+    background-color: var(--color-accent-hover);
   }
 
   .btn-outline:hover {
@@ -1834,7 +1846,7 @@
   }
 
   .btn-accent:hover {
-    background-color: color-mix(in srgb, var(--color-accent-2) 85%, var(--color-highlight) 15%);
+    background-color: var(--color-accent-2-hover);
   }
 
   .icon-btn {
@@ -2401,11 +2413,12 @@
   }
 
   .loading-bar {
+    /* Token-based so it adapts per theme — previously hardcoded to light-mode values. */
     background: linear-gradient(
       90deg,
-      rgba(222, 209, 238, 0.75) 0%,
-      rgba(247, 233, 181, 0.95) 50%,
-      rgba(222, 209, 238, 0.75) 100%
+      color-mix(in srgb, var(--color-border) 75%, transparent) 0%,
+      color-mix(in srgb, var(--color-accent-2) 45%, var(--color-surface)) 50%,
+      color-mix(in srgb, var(--color-border) 75%, transparent) 100%
     );
     background-size: 200% 100%;
     animation: shimmer 1.2s ease-in-out infinite;

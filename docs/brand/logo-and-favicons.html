@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0}
+  a{color:#c9b4ff}a:hover{color:#e2a413}
+</style>
+</helmet>
+<div style="min-height:100vh;background:#0e0b2e;color:#eae7ff;font-family:'Inter',sans-serif;padding:56px 40px 96px;display:flex;flex-direction:column;align-items:center;gap:56px">
+
+  <header style="width:100%;max-width:960px;display:flex;flex-direction:column;gap:10px">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:#8f86c9">Brand asset delivery</div>
+    <h1 style="margin:0;font-size:34px;font-weight:700;letter-spacing:-0.02em">Logo &amp; Favicon Set</h1>
+    <p style="margin:0;font-size:15px;line-height:1.6;color:#b6afe0;max-width:640px">Vector recreation of <code style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#e2a413">Brad_Circle_logo.ai</code> plus a full high-resolution &amp; fallback favicon set for <a href="https://bradh.org">bradh.org</a>.</p>
+  </header>
+
+  <section style="width:100%;max-width:960px;display:grid;grid-template-columns:1fr 1fr;gap:20px">
+    <div style="background:#390d6b;border-radius:16px;padding:36px;display:flex;align-items:center;justify-content:center;min-height:280px">
+      <img src="Brad_Circle_logo.svg" alt="Brad Hochgesang for State Senate logo" style="width:100%;max-width:420px;height:auto;display:block"/>
+    </div>
+    <div style="background:#ffffff;border-radius:16px;padding:36px;display:flex;align-items:center;justify-content:center;min-height:280px">
+      <img src="Brad_Circle_logo.svg" alt="Logo on white" style="width:100%;max-width:420px;height:auto;display:block"/>
+    </div>
+  </section>
+
+  <section style="width:100%;max-width:960px">
+    <h2 style="margin:0 0 6px;font-size:15px;font-family:'JetBrains Mono',monospace;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:#8f86c9">Brand palette</h2>
+    <p style="margin:0 0 24px;font-size:14px;color:#b6afe0">Deep purple field with the campaign gold as accent. Confirm and I'll hand these hexes to the website agent.</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+      <sc-for list="{{ palette }}" as="c" hint-placeholder-count="9">
+        <div style="background:#171341;border:1px solid #2a2560;border-radius:12px;overflow:hidden">
+          <div style="height:72px;background:{{ c.hex }}"></div>
+          <div style="padding:12px 14px;display:flex;flex-direction:column;gap:3px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+              <span style="font-size:13.5px;font-weight:600;color:#eae7ff">{{ c.name }}</span>
+              <code style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#e2a413">{{ c.hex }}</code>
+            </div>
+            <span style="font-size:11.5px;color:#8f86c9;line-height:1.4">{{ c.role }}</span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="width:100%;max-width:960px">
+    <h2 style="margin:0 0 6px;font-size:15px;font-family:'JetBrains Mono',monospace;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:#8f86c9">Website palette — Light &amp; Dark</h2>
+    <p style="margin:0 0 24px;font-size:14px;color:#b6afe0">Semantic tokens for the website agent, built from the same deep-purple + gold brand. Each mode shows a live mock and its full token set.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <sc-for list="{{ modes }}" as="m" hint-placeholder-count="2">
+        <div style="border:1px solid #2a2560;border-radius:16px;overflow:hidden">
+          <div style="padding:10px 16px;background:#171341;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#c9b4ff">{{ m.label }}</div>
+          <!-- live mock in-mode -->
+          <div style="padding:20px;background:{{ m.t.bg }}">
+            <div style="border:1px solid {{ m.t.border }};background:{{ m.t.surface }};border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:10px">
+              <div style="font-size:17px;font-weight:700;color:{{ m.t.text }}">Brad Hochgesang</div>
+              <div style="font-size:13px;line-height:1.5;color:{{ m.t.textMuted }}">Do the homework. Ask the people. Fight for their answer.</div>
+              <div style="display:flex;gap:10px;margin-top:2px">
+                <span style="font-size:13px;font-weight:600;padding:8px 14px;border-radius:8px;background:{{ m.t.primary }};color:{{ m.t.onPrimary }}">Donate</span>
+                <span style="font-size:13px;font-weight:600;padding:8px 14px;border-radius:8px;background:{{ m.t.accent }};color:{{ m.t.onAccent }}">Volunteer</span>
+              </div>
+              <a href="#" style="font-size:13px;font-weight:600;color:{{ m.t.link }};text-decoration:none">Read more →</a>
+            </div>
+          </div>
+          <!-- token list -->
+          <div style="background:#0d0a24;padding:14px 16px;display:flex;flex-direction:column;gap:2px">
+            <sc-for list="{{ m.tokens }}" as="tk" hint-placeholder-count="15">
+              <div style="display:flex;align-items:center;gap:10px;padding:5px 0">
+                <span style="width:20px;height:20px;border-radius:5px;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.14);background:{{ tk.hex }}"></span>
+                <span style="flex:none;width:118px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#cfc7f5">{{ tk.token }}</span>
+                <span style="flex:1;font-size:12px;color:#9990c4">{{ tk.use }}</span>
+                <code style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#e2a413">{{ tk.hex }}</code>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="width:100%;max-width:960px">
+    <h2 style="margin:0 0 6px;font-size:15px;font-family:'JetBrains Mono',monospace;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:#8f86c9">Favicon renders</h2>
+    <p style="margin:0 0 24px;font-size:14px;color:#b6afe0">Rasterized from the square <code style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#e2a413">favicon.svg</code> crop. Shown at true pixel size.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:28px;align-items:flex-end">
+      <sc-for list="{{ shots }}" as="s" hint-placeholder-count="6">
+        <figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:10px">
+          <img src="{{ s.src }}" width="{{ s.px }}" height="{{ s.px }}" style="display:block;image-rendering:auto;box-shadow:0 0 0 1px rgba(255,255,255,0.12);border-radius:4px"/>
+          <figcaption style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#8f86c9">{{ s.label }}</figcaption>
+        </figure>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="width:100%;max-width:960px">
+    <h2 style="margin:0 0 6px;font-size:15px;font-family:'JetBrains Mono',monospace;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:#8f86c9">iOS home-screen preview</h2>
+    <p style="margin:0 0 24px;font-size:14px;color:#b6afe0">Transparent corners composite to black on iOS. Compare against a solid purple fill. Say which you want for <code style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#e2a413">apple-touch-icon.png</code>.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:40px;background:linear-gradient(180deg,#3a3a42,#1e1e24);border-radius:16px;padding:32px 40px">
+      <figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:14px">
+        <div style="width:180px;height:180px;border-radius:40px;background:#000000;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;overflow:hidden">
+          <img src="favicons/apple-touch-icon.png" width="158" height="158" style="display:block"/>
+        </div>
+        <figcaption style="font-size:13px;color:#e7e3fb">Transparent → black</figcaption>
+      </figure>
+      <figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:14px">
+        <div style="width:180px;height:180px;border-radius:40px;background:#390d6b;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;overflow:hidden">
+          <img src="favicons/apple-touch-icon.png" width="158" height="158" style="display:block"/>
+        </div>
+        <figcaption style="font-size:13px;color:#e7e3fb">Purple fill</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section style="width:100%;max-width:960px;display:flex;flex-direction:column;gap:14px">
+    <h2 style="margin:0;font-size:15px;font-family:'JetBrains Mono',monospace;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:#8f86c9">Files</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <sc-for list="{{ files }}" as="f" hint-placeholder-count="8">
+        <div style="display:flex;justify-content:space-between;gap:16px;background:#171341;border:1px solid #2a2560;border-radius:10px;padding:12px 16px">
+          <code style="font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#eae7ff">{{ f.name }}</code>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#8f86c9;white-space:nowrap">{{ f.note }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="width:100%;max-width:960px;display:flex;flex-direction:column;gap:12px">
+    <h2 style="margin:0;font-size:15px;font-family:'JetBrains Mono',monospace;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:#8f86c9">Paste into &lt;head&gt;</h2>
+    <pre style="margin:0;background:#050418;border:1px solid #2a2560;border-radius:12px;padding:22px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.75;color:#d7d2ff">{{ headSnippet }}</pre>
+    <p style="margin:0;font-size:13px;color:#8f86c9;line-height:1.6">Assumes the <code style="font-family:'JetBrains Mono',monospace;color:#e2a413">favicons/</code> folder sits at your site root. Adjust paths if you place them elsewhere.</p>
+  </section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const shots = [16,32,48,64,180,512].map(px => ({
+      px,
+      label: px + '×' + px,
+      src: px === 180 ? 'favicons/apple-touch-icon.png'
+         : px === 512 ? 'favicons/favicon-512.png'
+         : 'favicons/favicon-' + px + '.png'
+    }));
+    const files = [
+      { name: 'Brad_Circle_logo.svg', note: 'full artwork · vector' },
+      { name: 'favicons/favicon.svg', note: 'scalable · theme icon' },
+      { name: 'favicons/favicon.ico', note: '16·32·48 · legacy' },
+      { name: 'favicons/favicon-16.png', note: '16×16' },
+      { name: 'favicons/favicon-32.png', note: '32×32' },
+      { name: 'favicons/favicon-48.png', note: '48×48' },
+      { name: 'favicons/apple-touch-icon.png', note: '180×180 · iOS' },
+      { name: 'favicons/icon-192.png', note: '192×192 · PWA' },
+      { name: 'favicons/icon-512.png', note: '512×512 · PWA' },
+      { name: 'favicons/site.webmanifest', note: 'web app manifest' }
+    ];
+    const headSnippet =
+`<link rel="icon" href="/favicons/favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="/favicons/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
+<link rel="manifest" href="/favicons/site.webmanifest">
+<meta name="theme-color" content="#390d6b">`;
+    const palette = [
+      { name: 'Deep Purple', role: 'Primary · logo field · theme', hex: '#390d6b' },
+      { name: 'Purple 800', role: 'Buttons · headings', hex: '#492a9e' },
+      { name: 'Purple 600', role: 'Links · hover · highlights', hex: '#7351df' },
+      { name: 'Purple 300', role: 'Tints · borders on dark', hex: '#b6abfc' },
+      { name: 'Purple 150', role: 'Section washes', hex: '#dddafb' },
+      { name: 'Gold', role: 'Accent · stars · CTAs', hex: '#e2a413' },
+      { name: 'Gold Light', role: 'Accent on dark · focus', hex: '#fbc95f' },
+      { name: 'Ink', role: 'Body text', hex: '#161229' },
+      { name: 'Paper', role: 'Page background', hex: '#f6f6fc' }
+    ];
+    const order = [
+      ['bg','Background','page canvas'],
+      ['surface','Surface','cards, panels'],
+      ['surfaceAlt','Surface alt','raised / subtle fills'],
+      ['border','Border','dividers, outlines'],
+      ['text','Text','primary copy'],
+      ['textMuted','Text muted','secondary copy'],
+      ['primary','Primary','brand actions, headings'],
+      ['primaryHover','Primary hover','hover / active'],
+      ['onPrimary','On primary','text on primary'],
+      ['accent','Accent','gold CTAs, highlights'],
+      ['accentHover','Accent hover','hover / active'],
+      ['onAccent','On accent','text on accent'],
+      ['link','Link','inline links'],
+      ['linkHover','Link hover','link hover'],
+      ['focus','Focus ring','keyboard focus']
+    ];
+    const light = { bg:'#f1ecfa', surface:'#ffffff', surfaceAlt:'#e3daf3', border:'#c9bce3', text:'#261b38', textMuted:'#675e7a', primary:'#390d6b', primaryHover:'#5a1c9a', onPrimary:'#ffffff', accent:'#e2a413', accentHover:'#a67c0a', onAccent:'#1e142e', link:'#702db9', linkHover:'#390d6b', focus:'#9769dc' };
+    const dark  = { bg:'#170b27', surface:'#26173f', surfaceAlt:'#3a2560', border:'#4d3873', text:'#f3f0f9', textMuted:'#b1a9c4', primary:'#9964e5', primaryHover:'#b082f7', onPrimary:'#161229', accent:'#e8b543', accentHover:'#fdcd68', onAccent:'#1a1029', link:'#c9adfd', linkHover:'#e0ceff', focus:'#b6abfc' };
+    const modes = [
+      { key:'light', label:'Light mode', t:light, tokens: order.map(([k,name,use])=>({ token:'--'+k.replace(/([A-Z])/g,'-$1').toLowerCase(), name, use, hex: light[k] })) },
+      { key:'dark',  label:'Dark mode',  t:dark,  tokens: order.map(([k,name,use])=>({ token:'--'+k.replace(/([A-Z])/g,'-$1').toLowerCase(), name, use, hex: dark[k] })) }
+    ];
+    return { shots, files, headSnippet, palette, modes };
+  }
+}
+</script>
+</body>
+</html>
