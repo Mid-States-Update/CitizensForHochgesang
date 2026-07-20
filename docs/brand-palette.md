@@ -123,8 +123,7 @@ silent patch.
 | File | Source | Notes |
 | --- | --- | --- |
 | `web/src/app/favicon.ico` | `favicon.ico` | 16/32/48 |
-| `web/src/app/icon.svg` | `favicon.svg` | scalable, 1067×1067 |
-| `web/src/app/icon.png` | `favicon-512.png` | 512 fallback |
+| `web/src/app/icon.svg` | `favicon.svg` | scalable, 1067×1067, emitted as `sizes="any"` |
 | `web/src/app/apple-icon.png` | `apple-touch-icon.png` | 180, iOS |
 | `web/public/icon-192.png` · `icon-512.png` | — | PWA, `purpose: any` |
 | `web/public/maskable-192.png` · `maskable-512.png` | — | PWA, `purpose: maskable` |
@@ -161,6 +160,13 @@ shape. Black keeps the mark reading as a distinct circle.
 
 **Do not flatten this file.** If a future pass "fixes" the transparency, it will
 regress the iOS home-screen icon.
+
+**Do not add `icon.png` back alongside `icon.svg`.** Next resolves only one `icon.*`
+and picks the PNG, which silently leaves the SVG emitted-but-unreferenced — a 61 KB
+raster served where a 31 KB scalable vector belongs. With the PNG gone, the build
+emits `<link rel="icon" href="/icon.svg?…" type="image/svg+xml" sizes="any">`, which
+is the modern setup. `favicon.ico` still covers browsers without SVG favicon support,
+and the manifest supplies the 192/512 rasters for PWA use.
 
 Delivered but not wired in: `favicons/favicon-badge.svg`.
 
