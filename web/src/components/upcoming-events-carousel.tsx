@@ -1,15 +1,34 @@
 'use client'
 
-import {useCallback, useEffect, useRef, useState} from 'react'
+import {useCallback, useEffect, useRef, useState, useSyncExternalStore} from 'react'
 import {FaChevronLeft, FaChevronRight} from 'react-icons/fa'
 
 import {CmsLink} from '@/components/cms-link'
+import {filterUpcomingEvents} from '@/lib/cms/event-time'
 import {formatDateTime} from '@/lib/cms/format'
 import type {CampaignEvent} from '@/lib/cms/types'
 import {clampSlideIndex, slideIndexFromScroll, slideStride, trackScrollState} from '@/lib/scroll-track'
 
 // The carousel is a teaser under the hero; /events carries the full list.
 const MAX_SLIDES = 8
+
+const NO_UPDATES = () => () => {}
+
+// Snapshot of the visitor's clock, captured once on the client and cached so
+// useSyncExternalStore always sees a stable value (an uncached Date.now() would
+// change every render and loop). Server renders read `null` — leaving the
+// build's event list untouched so hydration matches — then the client swaps in
+// the real time.
+let clientNow: number | null = null
+function getClientNow(): number {
+  if (clientNow === null) {
+    clientNow = Date.now()
+  }
+  return clientNow
+}
+function getServerNow(): null {
+  return null
+}
 
 function eventHref(event: CampaignEvent): string {
   return event.slug ? `/events/details#${encodeURIComponent(event.slug)}` : '/events'
@@ -20,7 +39,15 @@ function eventHref(event: CampaignEvent): string {
  * mobile (next card peeks in), one slide with chevron paging on desktop.
  */
 export function UpcomingEventsCarousel({events}: {events: CampaignEvent[]}) {
-  const slides = events.slice(0, MAX_SLIDES)
+  // This is a static export: the build-time `now()` in getUpcomingEvents is
+  // frozen into the HTML, so an event that ends between the build and a visit
+  // can still appear. Re-filter against the visitor's clock. The server snapshot
+  // is `null`, so the first client render matches the SSR HTML (no hydration
+  // mismatch); after hydration the real time swaps in and past events drop out.
+  const now = useSyncExternalStore(NO_UPDATES, getClientNow, getServerNow)
+
+  const visibleEvents = now === null ? events : filterUpcomingEvents(events, now)
+  const slides = visibleEvents.slice(0, MAX_SLIDES)
   const trackRef = useRef<HTMLDivElement | null>(null)
   const [index, setIndex] = useState(0)
   const [{canPrev, canNext}, setScrollState] = useState({canPrev: false, canNext: slides.length > 1})
